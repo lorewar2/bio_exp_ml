@@ -3,7 +3,7 @@ import numpy as np
 import random
 import model
 from torch.autograd import Variable
-
+# testing
 # Test data
 # Setting weights and bias
 w = torch.tensor([[3.0], 
