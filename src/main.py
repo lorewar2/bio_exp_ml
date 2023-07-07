@@ -3,13 +3,15 @@ import numpy as np
 import random
 import model
 from torch.autograd import Variable
+from data_preprocess import get_train_data
+
+get_train_data()
 # Normalize the input
 # Data input: threebase context(1,1,1), pacbio quality(1), and topology bases(1,1,1,1).
 # Test data
 # Setting weights and bias
 w = torch.tensor([[0.1], [0.3], [0.1], [0.5], [0.01], [0.03], [0.02], [0.05]], requires_grad=True)
 b = torch.tensor([[0.01]], requires_grad=True)
- 
 # Defining our forward function for prediction
 def forward(x):
     # using .mm module for matrix multiplication 
