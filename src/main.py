@@ -3,12 +3,12 @@ import numpy as np
 import random
 import model
 from torch.autograd import Variable
-# testing
+# Normalize the input
+# Data input: threebase context(1,1,1), pacbio quality(1), and topology bases(1,1,1,1).
 # Test data
 # Setting weights and bias
-w = torch.tensor([[3.0], 
-                  [4.0]], requires_grad=True)
-b = torch.tensor([[1.0]], requires_grad=True)
+w = torch.tensor([[0.1], [0.3], [0.1], [0.5], [0.01], [0.03], [0.02], [0.05]], requires_grad=True)
+b = torch.tensor([[0.01]], requires_grad=True)
  
 # Defining our forward function for prediction
 def forward(x):
@@ -17,29 +17,29 @@ def forward(x):
     return y_pred
  
 # define a tensor 'X' with multiple rows
-X = torch.tensor([[1.0, 2.0],
-                  [3.0, 4.0], 
-                  [5.0, 6.0]])
+X = torch.tensor([[0.33, 0.33, 0.66, 0.75, 5, 7, 3, 2],
+                  [0.66, 0, 0.66, 0.89, 5, 3, 3, 2], 
+                  [0.66, 1, 0.33, 0.93, 6, 6, 3, 10]])
  
 # Making predictions for Multi-Dimensional tensor "X"
 y_pred = forward(X)
 print("Predictions for 'X': ", y_pred)
-  
+
 # create dummy data for training
-x_test = np.array([[0.0, 0.0]])
+x_test = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
 for i in range(20):
-    x_test = np.append(x_test, [[random.uniform(0.0, 10.0), random.uniform(0.0, 10.0)]], axis=0)
+    x_test = np.append(x_test, [[random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 10), random.uniform(0.0, 10), random.uniform(0.0, 10), random.uniform(0.0, 10)]], axis=0)
 print(x_test)
 x_train = torch.from_numpy(np.float32(x_test))
 y_train = forward(x_train)
 print(y_train)
 
-# train the model 
+# # train the model 
 learningRate = 0.001 
 epochs = 100
 
 # build the model object
-lr_model = model.LR(2, 1)
+lr_model = model.LR(8, 1)
 # optimizer 
 optimizer = torch.optim.SGD(lr_model.parameters(), lr=learningRate)
 
