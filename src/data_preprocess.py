@@ -1,6 +1,6 @@
 import torch
 
-def get_data(path, start, len):
+def get_data(path, start, len, get_errors):
     file = open(path, "r")
     label_tensor = torch.empty((len, 1), dtype = torch.float32)
     input_tensor = torch.empty((len, 8), dtype = torch.float32)
@@ -11,6 +11,9 @@ def get_data(path, start, len):
         if index < start:
             index += 1
             continue
+        elif get_errors:
+            if tensor_pos >= len:
+                break
         elif index > start and index >= start + len:
             break
         if line != "\n":
@@ -40,7 +43,12 @@ def get_data(path, start, len):
             # append to result tensor,
             result = split_txt[0] 
             if result == "false":
+                if get_errors:
+                    index += 1
+                    continue
                 label_tensor[tensor_pos] = torch.tensor([[0.99]])
+                # continue if we want errors and its not a error
+                
             else:
                 label_tensor[tensor_pos] = torch.tensor([[0.00]])
             # make and append to the input tensor,

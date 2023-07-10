@@ -7,16 +7,16 @@ from data_preprocess import get_data
 import random
 
 # get the train data
-train_data_start = random.randint(0, 8_000_000)
+train_data_start = 0 #random.randint(0, 8_000_000)
 train_data_len = 1_000_000
 print("Getting", train_data_len, "train data from", train_data_start, "~")
-(train_inputs, train_labels) = get_data("data/test_file.txt", train_data_start, train_data_len)
+(train_inputs, train_labels) = get_data("data/test_file.txt", train_data_start, train_data_len, False)
 
 # get the test data
-test_data_start = random.randint(0, 9_000_000)
-test_data_len = 10
+test_data_start = 0
+test_data_len = 100
 print("Getting", test_data_len, "train data from", test_data_start, "~")
-(test_inputs, test_labels) = get_data("data/test_file.txt", test_data_start, test_data_len)
+(test_inputs, test_labels) = get_data("data/test_file.txt", test_data_start, test_data_len, True)
 
 # converting inputs and labels to Variable
 train_inputs = Variable(train_inputs)
@@ -25,7 +25,7 @@ train_labels = Variable(train_labels)
 # train the model
 learningRate = 0.00001
 epochs = 10
-batch_size = 1000
+batch_size = 10000
 
 # build the model object
 lr_model = model.LR(8, 1)
