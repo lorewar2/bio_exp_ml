@@ -51,19 +51,21 @@ def get_data(path, start, length, get_errors):
                     continue
                 label_tensor[tensor_pos] = torch.tensor([[0.99]])
                 # continue if we want errors and its not a error
-                
             else:
                 label_tensor[tensor_pos] = torch.tensor([[0.00]])
             # make and append to the input tensor,
             input_tensor[tensor_pos] = torch.tensor([[base_0, base_1, base_2, quality, parallel_0, parallel_1, parallel_2, parallel_3]])
-            if index % 10000 == 0:
-                print(index)
+            if index % 10000 == 0 and get_errors == False:
+                print("line index: {}".format(index))
+            elif tensor_pos % 100 == 0 and get_errors == True:
+                print("line index: {} errors found: {}".format(index, tensor_pos))
             index += 1
             tensor_pos += 1
     file.close()
     return (input_tensor, label_tensor)
 
 def get_corrosponding_float_for_base_character(character):
+    return_value = 0.0
     if character == "A":
         return_value = 0.0
     elif character == "C":

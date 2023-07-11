@@ -9,25 +9,25 @@ import random
 # set the seed
 torch.manual_seed(0)
 
-# get the train data
-train_data_start = 0 #random.randint(0, 8_000_000)
-train_data_len = 1_000_000
-print("Getting", train_data_len, "train data from", train_data_start, "~")
-(train_inputs, train_labels) = get_data("data/train_file.txt", train_data_start, train_data_len, False)
+# get the train data (20_000 errors and 980_000 normal)
+(train_inputs, train_labels) = get_data("data/train_file.txt", 0, 982_000, False)
+(error_inputs, error_labels) = get_data("data/error_train_file.txt", 0, 18000, False)
+train_inputs = torch.concat((train_inputs, error_inputs), 0)
+train_labels = torch.concat((train_labels, error_labels), 0)
 
-# get the test data
-test_data_start = 0
-test_data_len = 100
-print("Getting", test_data_len, "test data from", test_data_start, "~")
-(test_inputs, test_labels) = get_data("data/test_file.txt", test_data_start, test_data_len, True)
+# get the test data (100 error and 100 normal)
+(test_inputs, test_labels) = get_data("data/test_file.txt", 0, 100, False)
+(error_inputs, error_labels) = get_data("data/test_file.txt", 0, 100, True)
+test_inputs = torch.concat((test_inputs, error_inputs), 0)
+test_labels = torch.concat((test_labels, error_labels), 0)
 
 # converting inputs and labels to Variable
 train_inputs = Variable(train_inputs)
 train_labels = Variable(train_labels)
 
 # train parameters
-learningRate = 0.00001
-epochs = 3
+learningRate = 0.000001
+epochs = 100
 batch_size = 1024
 
 # build the model object
