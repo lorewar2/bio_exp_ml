@@ -1,1 +1,1 @@
-from .test_model import LR
+from .test_model import quality_model

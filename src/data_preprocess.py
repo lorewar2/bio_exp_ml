@@ -1,9 +1,9 @@
 import torch
 
-def get_data(path, start, len, get_errors):
+def get_data(path, start, length, get_errors):
     file = open(path, "r")
-    label_tensor = torch.empty((len, 1), dtype = torch.float32)
-    input_tensor = torch.empty((len, 8), dtype = torch.float32)
+    label_tensor = torch.empty((length, 1), dtype = torch.float32)
+    input_tensor = torch.empty((length, 8), dtype = torch.float32)
     index = 0
     tensor_pos = 0
     for line in file:
@@ -12,18 +12,21 @@ def get_data(path, start, len, get_errors):
             index += 1
             continue
         elif get_errors:
-            if tensor_pos >= len:
+            if tensor_pos >= length:
                 break
-        elif index > start and index >= start + len:
+        elif index > start and index >= start + length:
             break
         if line != "\n":
             split_txt = line.split(" ")
+            if len(split_txt) != 10:
+                index += 1
+                continue
             # get three base context in float
             base_0 = get_corrosponding_float_for_base_character(split_txt[1][0])
             base_1 = get_corrosponding_float_for_base_character(split_txt[1][1])
             base_2 = get_corrosponding_float_for_base_character(split_txt[1][2])
             # get quality in float
-            quality = float(split_txt[3])
+            quality = float(split_txt[3]) / 100
             # get the num of parallel bases in float
             parallel_0 = split_txt[6]
             parallel_1 = split_txt[7]
