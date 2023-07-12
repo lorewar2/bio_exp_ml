@@ -10,14 +10,14 @@ import random
 torch.manual_seed(0)
 
 # get the train data (20_000 errors and 980_000 normal)
-(train_inputs, train_labels) = get_data("data/train_file.txt", 0, 982_000, False)
-(error_inputs, error_labels) = get_data("data/error_train_file.txt", 0, 18000, False)
-train_inputs = torch.concat((train_inputs, error_inputs), 0)
-train_labels = torch.concat((train_labels, error_labels), 0)
+(train_inputs, train_labels) = get_data("data/train_file.txt", 0, 1_000_000, False)
+# (error_inputs, error_labels) = get_data("data/error_train_file.txt", 0, 18000, False)
+# train_inputs = torch.concat((train_inputs, error_inputs), 0)
+# train_labels = torch.concat((train_labels, error_labels), 0)
 
 # get the test data (100 error and 100 normal)
-(test_inputs, test_labels) = get_data("data/test_file.txt", 0, 100, False)
-(error_inputs, error_labels) = get_data("data/test_file.txt", 0, 100, True)
+(test_inputs, test_labels) = get_data("data/test_file.txt", 0, 100, True)
+(error_inputs, error_labels) = get_data("data/test_file.txt", 0, 100, False)
 test_inputs = torch.concat((test_inputs, error_inputs), 0)
 test_labels = torch.concat((test_labels, error_labels), 0)
 
@@ -26,8 +26,8 @@ train_inputs = Variable(train_inputs)
 train_labels = Variable(train_labels)
 
 # train parameters
-learningRate = 0.000001
-epochs = 100
+learningRate = 0.0001
+epochs = 200
 batch_size = 1024
 
 # build the model object
@@ -60,5 +60,5 @@ for epoch in range(epochs):
 
 print("test!")
 for i in range(len(test_inputs)):
-    print("input {} output {} label {}".format(test_inputs[i], lr_model(test_inputs)[i].item(), test_labels[i].item()))
+    print("input {} pacbio_qual {} output {}  label {}".format(test_inputs[i][12:], test_inputs[i][12].item(), lr_model(test_inputs)[i].item(), test_labels[i].item()))
 

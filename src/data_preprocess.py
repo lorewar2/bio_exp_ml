@@ -3,7 +3,7 @@ import torch
 def get_data(path, start, length, get_errors):
     file = open(path, "r")
     label_tensor = torch.empty((length, 1), dtype = torch.float32)
-    input_tensor = torch.empty((length, 8), dtype = torch.float32)
+    input_tensor = torch.empty((length, 17), dtype = torch.float32)
     index = 0
     tensor_pos = 0
     for line in file:
@@ -49,12 +49,30 @@ def get_data(path, start, length, get_errors):
                 if get_errors:
                     index += 1
                     continue
-                label_tensor[tensor_pos] = torch.tensor([[0.99]])
+                label_tensor[tensor_pos] = torch.tensor([[1.0]])
                 # continue if we want errors and its not a error
             else:
                 label_tensor[tensor_pos] = torch.tensor([[0.00]])
             # make and append to the input tensor,
-            input_tensor[tensor_pos] = torch.tensor([[base_0, base_1, base_2, quality, parallel_0, parallel_1, parallel_2, parallel_3]])
+            sort_vec = [parallel_0, parallel_1, parallel_2, parallel_3]
+            if base_1 <= 0.0:
+                selected_base = sort_vec[0]
+                del sort_vec[0]
+            elif base_1 <= 0.334:
+                selected_base = sort_vec[1]
+                del sort_vec[1]
+            elif base_1 <= 0.67:
+                selected_base = sort_vec[2]
+                del sort_vec[2]
+            elif base_1 <= 1.01:
+                selected_base = sort_vec[3]
+                del sort_vec[3]
+            sort_vec.sort(reverse=True)
+            sort_vec = [selected_base] + sort_vec
+            encoded_base_0 = one_hot_encoding_bases(base_0)
+            encoded_base_1 = one_hot_encoding_bases(base_1)
+            encoded_base_2 = one_hot_encoding_bases(base_2)
+            input_tensor[tensor_pos] = torch.tensor([encoded_base_0 + encoded_base_1 + encoded_base_2 + [quality] + sort_vec])
             if index % 10000 == 0 and get_errors == False:
                 print("line index: {}".format(index))
             elif tensor_pos % 100 == 0 and get_errors == True:
@@ -63,6 +81,18 @@ def get_data(path, start, length, get_errors):
             tensor_pos += 1
     file.close()
     return (input_tensor, label_tensor)
+
+def one_hot_encoding_bases(base):
+    one_hot_base = [0.0]*4
+    if base <= 0.0:
+        one_hot_base[0] = 1.0
+    elif base <= 0.334:
+        one_hot_base[1] = 1.0
+    elif base <= 0.67:
+        one_hot_base[2] = 1.0
+    elif base <= 1.01:
+        one_hot_base[3] = 1.0
+    return one_hot_base
 
 def get_corrosponding_float_for_base_character(character):
     return_value = 0.0
