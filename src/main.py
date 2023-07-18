@@ -6,6 +6,7 @@ from torch.autograd import Variable
 from data_preprocess import get_data
 import random
 
+PATH = "./result/model/chr1_1bil_model.pt"
 # set the seed
 torch.manual_seed(0)
 
@@ -21,7 +22,7 @@ train_labels = Variable(train_labels)
 
 # train parameters
 learningRate = 0.0001
-epochs = 2
+epochs = 10
 batch_size = 1024
 
 # build the model object
@@ -30,6 +31,13 @@ lr_model = model.quality_model()
 # optimizer 
 optimizer = torch.optim.SGD(lr_model.parameters(), lr=learningRate)
 criterion = torch.nn.MSELoss()
+torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, PATH)
+# load the previous saved trained model
+checkpoint = torch.load(PATH)
+lr_model.load_state_dict(checkpoint['model_state_dict'])
+optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+epoch = checkpoint['epoch']
+loss = checkpoint['loss']
 
 # train the model
 for epoch in range(epochs):
@@ -51,6 +59,9 @@ for epoch in range(epochs):
         # update parameters
         optimizer.step()
         print('epoch {}, loss {}, val_loss {} batch {}/{}'.format(epoch, loss.item(), val_loss, i, train_inputs.size()[0]))
+
+# save the trained model
+torch.save({'epoch': epoch, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss}, PATH)
 
 print("test!")
 for i in range(len(test_inputs)):

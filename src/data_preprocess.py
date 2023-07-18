@@ -28,13 +28,11 @@ def get_data(path, start, length, get_random):
                 index += 1
                 continue
             # get three base context in one hot encoded
-            encoded_base_0 = one_hot_encoding_bases(split_txt[1][0])
-            encoded_base_1 = one_hot_encoding_bases(split_txt[1][1])
-            encoded_base_2 = one_hot_encoding_bases(split_txt[1][2])
+            encoded_bases = one_hot_encoding_bases(split_txt[1][0]) + one_hot_encoding_bases(split_txt[1][1]) + one_hot_encoding_bases(split_txt[1][2])
             # get quality in float
             quality = float(split_txt[3]) / 100
             # get the num of parallel bases in float
-            parallel_vec_s = [split_txt[6], split_txt[7], split_txt[8], split_txt[9]]
+            parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
             char_remov = ["]", "[", ",", "\n"]
             for char in char_remov:
                 for index_s in range(len(parallel_vec_s)):
@@ -46,7 +44,7 @@ def get_data(path, start, length, get_random):
             # rearrange so that the calling base num first and rest in decending order
             sorted_vec = rearrange_sort_parallel_bases(parallel_vec_f, split_txt[1][1])
             # make and append to the input tensor,
-            input_tensor[tensor_pos] = torch.tensor([encoded_base_0 + encoded_base_1 + encoded_base_2 + [quality] + sorted_vec])
+            input_tensor[tensor_pos] = torch.tensor([encoded_bases + [quality] + sorted_vec])
             # append to result tensor,
             result = split_txt[0]
             if result == "false":
@@ -80,7 +78,7 @@ def rearrange_sort_parallel_bases(parallel_vec, base):
     parallel_vec.sort(reverse = True)
     parallel_vec = [selected_base] + parallel_vec
     return parallel_vec
-    
+
 def one_hot_encoding_bases(base):
     one_hot_base = [0.0] * 4
     if base == "A":
