@@ -8,9 +8,11 @@ def get_data(path, start, length, get_random):
     index = 0
     tensor_pos = 0
     for line in file:
+        
         # only get the specified section in file
         if index < start:
-            index += 1
+            if line != "\n":
+                index += 1
             continue
         # if random is required break when tensor is full
         elif get_random:
@@ -20,11 +22,11 @@ def get_data(path, start, length, get_random):
         elif index > start and index >= start + length:
             break
         # continue if random choice is true
-        if get_random and random.choice([True, False]):
-                continue
+        if get_random and random.choice([True, True, True, True, False]):
+            continue
         if line != "\n":
             split_txt = line.split(" ")
-            if len(split_txt) != 10:
+            if len(split_txt) != 11:
                 index += 1
                 continue
             # get three base context in one hot encoded
