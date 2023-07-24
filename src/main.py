@@ -5,20 +5,24 @@ import model
 from torch.autograd import Variable
 from data_preprocess import get_data
 import random
+import math
 
 PATH = "./result/model/chr1_1bil_model.pt"
 # set the seed
 torch.manual_seed(0)
 random.seed(2)
 def main():
-    train_model()
+    # train_model()
     evaluate_model()
     return
 
 # this function will evalute the model and aggregate the results (output of the model for wrong and right)
 def evaluate_model():
+    # arrays to save the result
+    error_counts = [0] * 93
+    all_counts = [0] * 93
     # get the data to test
-    (eval_inputs, eval_labels) = get_data("data/eval_file.txt", 0, 1_000_000_000, False)
+    (eval_inputs, eval_labels) = get_data("data/train_file.txt", 0, 100_000, False)
 
     # load the model
     lr_model = model.quality_model()
@@ -28,10 +32,14 @@ def evaluate_model():
     # run the data
     with torch.no_grad():
         lr_model.eval()
-        pred = model(eval_inputs)
+        pred = lr_model(eval_inputs)
         for i in range(len(eval_inputs)):
-            print("input {} pacbio_qual {} output {}  label {}".format(eval_inputs[i][12:], eval_inputs[i][12].item(), pred[i].item(), eval_labels[i].item()))
-
+            position = int(-10 * math.log(1 - pred[i].item(), 10))
+            all_counts[position] += 1
+            if eval_labels[i].item() < 0.9:
+                error_counts[position] += 1
+    print(all_counts)
+    print(error_counts)
 
 # this function will train the model using the train data
 def train_model():
