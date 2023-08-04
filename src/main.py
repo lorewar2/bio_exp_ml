@@ -2,6 +2,8 @@ import torch
 import numpy as np
 import random
 import model
+from dataset import QualityDataset
+from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from data_preprocess import get_data
 import random
@@ -10,10 +12,20 @@ import math
 PATH = "./result/model/chr1_1bil_model.pt"
 
 def main():
+    train_dataset = QualityDataset ("data/train_file.txt", "data/train_file.idx")
+    train_loader = DataLoader (
+        dataset = train_dataset,
+        batch_size = 16,
+        shuffle = False,
+        drop_last = True
+    )
+    for batch_idx, (x, y) in enumerate(train_loader):
+        print(batch_idx)
+        print(x[0])
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    train_model()
+    #train_model()
     #evaluate_model()
     #test()
     return
