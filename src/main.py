@@ -8,21 +8,31 @@ import random
 import math
 
 PATH = "./result/model/chr1_1bil_model.pt"
-# set the seed
-torch.manual_seed(0)
-random.seed(2)
+
 def main():
-    # train_model()
-    evaluate_model()
+    # set the seed
+    torch.manual_seed(0)
+    random.seed(2)
+    train_model()
+    #evaluate_model()
+    #test()
     return
 
+def test():
+    lr_model = model.quality_model()
+    checkpoint = torch.load(PATH)
+    lr_model.load_state_dict(checkpoint['model_state_dict'])
+    for name, param in lr_model.named_parameters():
+        if param.requires_grad:
+            print(name, param.data)
+    return
 # this function will evalute the model and aggregate the results (output of the model for wrong and right)
 def evaluate_model():
     # arrays to save the result
     error_counts = [0] * 93
     all_counts = [0] * 93
     # get the data to test
-    (eval_inputs, eval_labels) = get_data("data/train_file.txt", 0, 100_000, False)
+    (eval_inputs, eval_labels) = get_data("data/chr21_ml_file.txt", 0, 100_000_000, False)
 
     # load the model
     lr_model = model.quality_model()
@@ -44,10 +54,10 @@ def evaluate_model():
 # this function will train the model using the train data
 def train_model():
     # get the train data (1_000_000 normal)
-    (train_inputs, train_labels) = get_data("data/train_file.txt", 0, 100_000_000, False)
+    (train_inputs, train_labels) = get_data("data/train_file.txt", 0, 10_000_000, False)
 
     # get the test data (random test data)
-    (test_inputs, test_labels) = get_data("data/test_file.txt", random.randint(0, 8_000_000), 100, True)
+    (test_inputs, test_labels) = get_data("data/test_file.txt", random.randint(0, 1_000_000), 100, True)
 
     # converting inputs and labels to Variable
     train_inputs = Variable(train_inputs)
