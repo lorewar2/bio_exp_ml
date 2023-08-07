@@ -9,7 +9,7 @@ class QualityDataset(torch.utils.data.Dataset):
         with open(self.index_loc) as f:
             f.seek(0, 2)
             offset = f.tell()
-            self.len = int(offset - 44 / 44)
+            self.len = int((offset - 44) / 44)
     def __len__(self):
         return self.len
     def __getitem__(self, index):

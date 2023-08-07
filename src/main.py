@@ -56,15 +56,15 @@ def evaluate_model():
 # this function will train the model using the train data
 def train_model():
     # train parameters
-    learningRate = 0.0001
+    learningRate = 0.00001
     epochs = 10
-    batch_size = 1024
-    
+    batch_size = 1024    
     # data loading
     train_dataset = QualityDataset ("data/train_file.txt", "data/train_file.idx")
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
+        num_workers = 4,
         shuffle = True,
         drop_last = True
     )
@@ -74,7 +74,7 @@ def train_model():
     # optimizer 
     optimizer = torch.optim.SGD(lr_model.parameters(), lr=learningRate)
     criterion = torch.nn.MSELoss()
-    #torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, PATH)
+    torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, PATH)
     # load the previous saved trained model
     checkpoint = torch.load(PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
