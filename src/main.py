@@ -13,19 +13,91 @@ def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    train_model()
+    #train_model()
     #evaluate_model()
-    #test()
+    view_result()
     return
 
-def test():
+def view_result():
+    # show the model parameters
     lr_model = model.quality_model()
     checkpoint = torch.load(PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
     for name, param in lr_model.named_parameters():
         if param.requires_grad:
             print(name, param.data)
+    # get and view 100 error data and 100 correct data
+    required_number = 5
+    batch_size = 1024
+    correct_tensor_len = 0
+    correct_tensor = torch.empty((required_number, 71), dtype = torch.float32)
+    error_tensor_len = 0
+    error_tensor = torch.empty((required_number, 71), dtype = torch.float32)
+    eval_dataset = QualityDataset ("data/train_file.txt", "data/train_file.idx")
+    eval_loader = DataLoader (
+        dataset = eval_dataset,
+        batch_size = batch_size,
+        num_workers = 4,
+        shuffle = True,
+        drop_last = True
+    )
+    eval_len = len(eval_loader)
+    with torch.no_grad():
+        lr_model.eval()
+        for batch_idx, (batch_inputs, batch_labels) in enumerate(eval_loader):
+            pred = lr_model(batch_inputs)
+            for i in range(len(batch_inputs)):
+                if (batch_labels[i].item() < 0.9) and (error_tensor_len < required_number):
+                    error_tensor[error_tensor_len] = torch.concat((batch_inputs[i], batch_labels[i], pred[i]), dim = 1)
+                    error_tensor_len += 1
+                elif (correct_tensor_len < required_number):
+                    correct_tensor[correct_tensor_len] = torch.concat((batch_inputs[i], batch_labels[i], pred[i]), dim = 1)
+                    correct_tensor_len += 1
+            print("Processing {}/{} found correct {} error {}".format(batch_idx, eval_len, correct_tensor_len, error_tensor_len))
+            if (correct_tensor_len >= required_number) and (error_tensor_len >= required_number):
+                break
+    lr_model.train()
+    # display the data nicely
+    print("errors")
+    for error in error_tensor:
+        print_result_tensor(error)
+    print("correct")
+    for correct in correct_tensor:
+        print_result_tensor(correct)
+    #print(error_tensor)
+    #print(correct_tensor)
     return
+
+def print_result_tensor(obtained_tensor):
+    # get the three base context from first 64 bits
+    three_base_context_64bit = 0
+    for idx, value in enumerate(obtained_tensor[0:64]):
+        if value > 0.5:
+            three_base_context_64bit = idx
+    first_base = three_base_context_64bit % 4
+    second_base = int(three_base_context_64bit / 4) % 4
+    third_base = int(three_base_context_64bit / 16) % 4
+    three_base_context = [int_to_base(first_base), int_to_base(second_base), int_to_base(third_base)]
+    pacbio_qual = obtained_tensor[64].item()
+    parallel_nodes = obtained_tensor[65:69]
+    correct_rate = obtained_tensor[70].item()
+    calc_qual = int(-10 * math.log(1 - correct_rate, 10))
+    print("three_base_context {} parallel_nodes {} pacbio_qual {} correct_rate {} calculated_qual {} ".format(three_base_context, parallel_nodes, pacbio_qual, correct_rate, calc_qual))
+    return
+
+def int_to_base(number):
+    base = 'P'
+    match number:
+        case 0:
+            base = 'A'
+        case 1:
+            base = 'C'
+        case 2:
+            base = 'G'
+        case 3:
+            base = 'T'
+    return base
+
 # this function will evalute the model and aggregate the results (output of the model for wrong and right)
 def evaluate_model():
     # arrays to save the result
@@ -38,9 +110,10 @@ def evaluate_model():
         dataset = eval_dataset,
         batch_size = batch_size,
         num_workers = 4,
-        shuffle = True,
+        shuffle = False,
         drop_last = True
     )
+    eval_len = len(eval_loader)
     # load the model
     lr_model = model.quality_model()
     checkpoint = torch.load(PATH)
@@ -48,16 +121,18 @@ def evaluate_model():
 
     # run the data
     with torch.no_grad():
+        lr_model.eval()
         for batch_idx, (batch_inputs, batch_labels) in enumerate(eval_loader):
-            lr_model.eval()
             pred = lr_model(batch_inputs)
             for i in range(len(batch_inputs)):
                 position = int(-10 * math.log(1 - pred[i].item(), 10))
                 all_counts[position] += 1
                 if batch_labels[i].item() < 0.9:
                     error_counts[position] += 1
+            print("Evaluating {}/{}".format(batch_idx, eval_len))
     print(all_counts)
     print(error_counts)
+    lr_model.train()
 
 # this function will train the model using the train data
 def train_model():
@@ -104,8 +179,6 @@ def train_model():
             print('epoch {}, loss {}, batch {}/{}'.format(epoch, loss.item(), batch_idx, num_batches))
     # save the trained model
     torch.save({'epoch': epoch, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss}, PATH)
-    #for i in range(len(test_inputs)):
-        #print("input {} pacbio_qual {} output {}  label {}".format(test_inputs[i][12:], test_inputs[i][12].item(), lr_model(test_inputs)[i].item(), test_labels[i].item()))
 
 if __name__ == "__main__":
     main()
