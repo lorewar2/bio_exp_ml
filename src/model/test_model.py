@@ -4,7 +4,7 @@ class quality_model(torch.nn.Module):
     # Object Constructor
     def __init__(self):
         super().__init__()
-        self.linear = torch.nn.Linear(17, 1)
+        self.linear = torch.nn.Linear(69, 1)
         self.sig = torch.nn.Sigmoid()
     # define the forward function for prediction
     def forward(self, x):

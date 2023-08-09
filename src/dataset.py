@@ -31,9 +31,10 @@ class QualityDataset(torch.utils.data.Dataset):
         split_txt = retrieved_line.split(" ")
         # case of corrupted data
         if len(split_txt) != 11:
-            return torch.zeros(1, 17), torch.tensor([[0.00]])
+            return torch.zeros(1, 69), torch.tensor([[0.00]])
         # get three base context in one hot encoded
-        encoded_bases = self.one_hot_encoding_bases(split_txt[1][0]) + self.one_hot_encoding_bases(split_txt[1][1]) + self.one_hot_encoding_bases(split_txt[1][2])
+        #encoded_bases = self.one_hot_encoding_bases(split_txt[1][0]) + self.one_hot_encoding_bases(split_txt[1][1]) + self.one_hot_encoding_bases(split_txt[1][2])
+        encoded_bases = self.one_hot_encoding_64bit(split_txt[1][0], split_txt[1][1], split_txt[1][2])
         # get quality in float
         quality = float(split_txt[3]) / 100
         # get the num of parallel bases in float
@@ -90,3 +91,26 @@ class QualityDataset(torch.utils.data.Dataset):
         elif base == "T":
             one_hot_base[3] = 1.0
         return one_hot_base
+
+    def get_base_to_int(self, base):
+        if base == "A":
+            base_int = 0
+        elif base == "C":
+            base_int = 1
+        elif base == "G":
+            base_int = 2
+        elif base == "T":
+            base_int = 3
+        else:
+            base_int = 0
+        return base_int
+
+    def one_hot_encoding_64bit(self, base0, base1, base2):
+        encoded_bases = [0.0] * 64
+        bases = [self.get_base_to_int(base0), self.get_base_to_int(base1), self.get_base_to_int(base2)]
+        result = 0
+        for idx, base in enumerate(bases):
+            multiplier = idx * 4
+            result += base * multiplier
+        encoded_bases[int(result)] = 1.0
+        return encoded_bases

@@ -24,3 +24,5 @@ with open(write_path, "a") as f:
         index += 1
         if index % 1_000_000 == 0:
             print(index)
+
+# find the location 
