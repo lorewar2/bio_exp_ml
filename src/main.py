@@ -4,8 +4,6 @@ import random
 import model
 from dataset import QualityDataset
 from torch.utils.data import DataLoader
-from torch.autograd import Variable
-from data_preprocess import get_data
 import random
 import math
 
