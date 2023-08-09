@@ -1,7 +1,29 @@
+
 import torch
 import random
 
-def get_data(path, start, length, get_random):
+def print_topology_cut_scores():
+    # arrays to save the result
+    error_counts = [0] * 93
+    all_counts = [0] * 93
+    path = "./data/train_file.txt"
+    file = open(path, "r")
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        if len(split_txt) != 11:
+            continue
+        result = split_txt[0]
+        position = int(split_txt[6])
+        all_counts[position] += 1
+        if result == "true":
+            error_counts[position] += 1
+        if index % 100000 == 0:
+            print("Running line {}".format(index))
+    print(error_counts)
+    print(all_counts)
+    return
+
+def old_data_loader(path, start, length, get_random):
     file = open(path, "r")
     label_tensor = torch.empty((length, 1), dtype = torch.float32)
     input_tensor = torch.empty((length, 17), dtype = torch.float32)
