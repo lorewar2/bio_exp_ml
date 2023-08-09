@@ -33,9 +33,16 @@ def evaluate_model():
     # arrays to save the result
     error_counts = [0] * 93
     all_counts = [0] * 93
+    batch_size = 1024
     # get the data to test
-    (eval_inputs, eval_labels) = get_data("data/chr21_ml_file.txt", 0, 100_000_000, False)
-
+    eval_dataset = QualityDataset ("data/train_file.txt", "data/train_file.idx")
+    eval_loader = DataLoader (
+        dataset = eval_dataset,
+        batch_size = batch_size,
+        num_workers = 4,
+        shuffle = True,
+        drop_last = True
+    )
     # load the model
     lr_model = model.quality_model()
     checkpoint = torch.load(PATH)
@@ -43,13 +50,14 @@ def evaluate_model():
 
     # run the data
     with torch.no_grad():
-        lr_model.eval()
-        pred = lr_model(eval_inputs)
-        for i in range(len(eval_inputs)):
-            position = int(-10 * math.log(1 - pred[i].item(), 10))
-            all_counts[position] += 1
-            if eval_labels[i].item() < 0.9:
-                error_counts[position] += 1
+        for batch_idx, (batch_inputs, batch_labels) in enumerate(eval_loader):
+            lr_model.eval()
+            pred = lr_model(batch_inputs)
+            for i in range(len(batch_inputs)):
+                position = int(-10 * math.log(1 - pred[i].item(), 10))
+                all_counts[position] += 1
+                if batch_labels[i].item() < 0.9:
+                    error_counts[position] += 1
     print(all_counts)
     print(error_counts)
 
@@ -57,7 +65,7 @@ def evaluate_model():
 def train_model():
     # train parameters
     learningRate = 0.00001
-    epochs = 10
+    epochs = 1
     batch_size = 1024    
     # data loading
     train_dataset = QualityDataset ("data/train_file.txt", "data/train_file.idx")

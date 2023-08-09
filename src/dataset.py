@@ -26,8 +26,8 @@ class QualityDataset(torch.utils.data.Dataset):
             retrieved_line = f2.readline()
             #print(retrieved_line)
         # process the retrieved line
-        print(retrieved_line)
-        print(location)
+        #print(retrieved_line)
+        #print(location)
         split_txt = retrieved_line.split(" ")
         # case of corrupted data
         if len(split_txt) != 11:
