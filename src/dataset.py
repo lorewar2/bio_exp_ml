@@ -29,7 +29,7 @@ class QualityDataset(torch.utils.data.Dataset):
         #print(retrieved_line)
         #print(location)
         split_txt = retrieved_line.split(" ")
-        # case of corrupted data
+        # case of corrupted data $dont use this$ 
         if len(split_txt) != 11:
             return torch.zeros(1, 69), torch.tensor([[0.00]])
         # get three base context in one hot encoded
