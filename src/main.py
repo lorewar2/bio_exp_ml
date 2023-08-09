@@ -15,9 +15,9 @@ def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    train_model()
+    #train_model()
     #evaluate_model()
-    #test()
+    test()
     return
 
 def test():
@@ -74,7 +74,7 @@ def train_model():
     # optimizer 
     optimizer = torch.optim.SGD(lr_model.parameters(), lr=learningRate)
     criterion = torch.nn.MSELoss()
-    torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, PATH)
+    #torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, PATH)
     # load the previous saved trained model
     checkpoint = torch.load(PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])

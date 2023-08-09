@@ -65,6 +65,7 @@ def get_data(path, start, length, get_random):
     return (input_tensor, label_tensor)
 
 def rearrange_sort_parallel_bases(parallel_vec, base):
+    selected_base = parallel_vec[0]
     if base == "A":
         selected_base = parallel_vec[0]
         del parallel_vec[0]

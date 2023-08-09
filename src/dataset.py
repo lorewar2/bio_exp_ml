@@ -26,7 +26,12 @@ class QualityDataset(torch.utils.data.Dataset):
             retrieved_line = f2.readline()
             #print(retrieved_line)
         # process the retrieved line
+        print(retrieved_line)
+        print(location)
         split_txt = retrieved_line.split(" ")
+        # case of corrupted data
+        if len(split_txt) != 11:
+            return torch.zeros(1, 17), torch.tensor([[0.00]])
         # get three base context in one hot encoded
         encoded_bases = self.one_hot_encoding_bases(split_txt[1][0]) + self.one_hot_encoding_bases(split_txt[1][1]) + self.one_hot_encoding_bases(split_txt[1][2])
         # get quality in float
@@ -67,6 +72,9 @@ class QualityDataset(torch.utils.data.Dataset):
         elif base == "T":
             selected_base = parallel_vec[3]
             del parallel_vec[3]
+        else:
+            selected_base = parallel_vec[0]
+            del parallel_vec[0]
         parallel_vec.sort(reverse = True)
         parallel_vec = [selected_base] + parallel_vec
         return parallel_vec
