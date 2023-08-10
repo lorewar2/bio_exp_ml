@@ -48,8 +48,10 @@ def view_result():
             pred = lr_model(batch_inputs)
             for i in range(len(batch_inputs)):
                 if (batch_labels[i].item() < 0.9) and (error_tensor_len < required_number):
-                    error_tensor[error_tensor_len] = torch.concat((batch_inputs[i], batch_labels[i], pred[i]), dim = 1)
-                    error_tensor_len += 1
+                    pacbio_qual = batch_inputs[i][0][64].item()
+                    if pacbio_qual > 0.01:
+                        error_tensor[error_tensor_len] = torch.concat((batch_inputs[i], batch_labels[i], pred[i]), dim = 1)
+                        error_tensor_len += 1
                 elif (correct_tensor_len < required_number):
                     correct_tensor[correct_tensor_len] = torch.concat((batch_inputs[i], batch_labels[i], pred[i]), dim = 1)
                     correct_tensor_len += 1
@@ -163,8 +165,6 @@ def train_model():
     # pacbio qual
     custom_weight[0][64] = torch.tensor(1.0)
     # put the weights in the model
-    print(lr_model.linear.weight.shape)
-    print(custom_weight.shape)
     lr_model.linear.weight = torch.nn.Parameter(custom_weight)
 
     # optimizer 
