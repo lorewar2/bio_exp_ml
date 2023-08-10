@@ -13,9 +13,9 @@ def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    train_model()
+    #train_model()
     #evaluate_model()
-    view_result()
+    #view_result()
     return
 
 def view_result():
@@ -49,7 +49,7 @@ def view_result():
             for i in range(len(batch_inputs)):
                 if (batch_labels[i].item() < 0.9) and (error_tensor_len < required_number):
                     pacbio_qual = batch_inputs[i][0][64].item()
-                    if pacbio_qual > 0.01:
+                    if pacbio_qual > 0.001:
                         error_tensor[error_tensor_len] = torch.concat((batch_inputs[i], batch_labels[i], pred[i]), dim = 1)
                         error_tensor_len += 1
                 elif (correct_tensor_len < required_number):
@@ -89,15 +89,14 @@ def print_result_tensor(obtained_tensor):
 
 def int_to_base(number):
     base = 'P'
-    match number:
-        case 0:
-            base = 'A'
-        case 1:
-            base = 'C'
-        case 2:
-            base = 'G'
-        case 3:
-            base = 'T'
+    if number == 0:
+        base = 'A'
+    elif number == 1:
+        base = 'C'
+    elif number == 2:
+        base = 'G'
+    elif number == 3:
+        base = 'T'
     return base
 
 # this function will evalute the model and aggregate the results (output of the model for wrong and right)
@@ -127,9 +126,10 @@ def evaluate_model():
         for batch_idx, (batch_inputs, batch_labels) in enumerate(eval_loader):
             pred = lr_model(batch_inputs)
             for i in range(len(batch_inputs)):
+                pacbio_qual = batch_inputs[i][0][64].item()
                 position = int(-10 * math.log(1 - pred[i].item(), 10))
                 all_counts[position] += 1
-                if batch_labels[i].item() < 0.9:
+                if batch_labels[i].item() < 0.9 and pacbio_qual > 0.001:
                     error_counts[position] += 1
             print("Evaluating {}/{}".format(batch_idx, eval_len))
     print(all_counts)
