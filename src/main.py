@@ -13,7 +13,7 @@ def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    #train_model()
+    train_model()
     #evaluate_model()
     view_result()
     return
@@ -152,16 +152,32 @@ def train_model():
     # build the model object
     lr_model = model.quality_model()
 
+    # define custom weights
+    custom_weight = torch.rand(lr_model.linear.weight.shape)
+    # calling base count
+    custom_weight[0][65] = torch.tensor(1.0)
+    # other base count
+    custom_weight[0][66] = torch.tensor(-1.0)
+    custom_weight[0][67] = torch.tensor(-1.0)
+    custom_weight[0][68] = torch.tensor(-1.0)
+    # pacbio qual
+    custom_weight[0][64] = torch.tensor(1.0)
+    # put the weights in the model
+    print(lr_model.linear.weight.shape)
+    print(custom_weight.shape)
+    lr_model.linear.weight = torch.nn.Parameter(custom_weight)
+
     # optimizer 
     optimizer = torch.optim.SGD(lr_model.parameters(), lr=learningRate)
     criterion = torch.nn.MSELoss()
-    torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, PATH)
-    # load the previous saved trained model
-    checkpoint = torch.load(PATH)
-    lr_model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    epoch = checkpoint['epoch']
-    loss = checkpoint['loss']
+
+    # torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, PATH)
+    # # load the previous saved trained model
+    # checkpoint = torch.load(PATH)
+    # lr_model.load_state_dict(checkpoint['model_state_dict'])
+    # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    # epoch = checkpoint['epoch']
+    # loss = checkpoint['loss']
     num_batches = len(train_loader)
     # train loop
     for epoch in range(epochs):
