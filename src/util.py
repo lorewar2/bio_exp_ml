@@ -1,6 +1,8 @@
 
 import torch
 import random
+import numpy as np
+import scipy.special
 
 def print_topology_cut_scores():
     # arrays to save the result
@@ -22,6 +24,24 @@ def print_topology_cut_scores():
     print(error_counts)
     print(all_counts)
     return
+
+def calculate_topology_score(calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
+    ln_prob_base_A =  np.log(0.25)
+    ln_prob_base_C = np.log(0.25)
+    ln_prob_base_G = np.log(0.25)
+    ln_prob_base_T = np.log(0.25)
+    
+    ln_prob_data_given_A = np.log(calculate_binomial(num_of_reads, base_A_count))
+    ln_prob_data_given_C = np.log(calculate_binomial(num_of_reads, base_C_count))
+    ln_prob_data_given_G = np.log(calculate_binomial(num_of_reads, base_G_count))
+    ln_prob_data_given_T = np.log(calculate_binomial(num_of_reads, base_T_count))
+    return
+
+def calculate_binomial(n, k, prob):
+    binomial_coeff = scipy.special.binom(n, k)
+    success = 1
+    failure = 1
+    return (binomial_coeff * success * failure)
 
 def old_data_loader(path, start, length, get_random):
     file = open(path, "r")
