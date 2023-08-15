@@ -7,20 +7,20 @@ from torch.utils.data import DataLoader
 import random
 import math
 
-PATH = "./result/model/chr1_1bil_model.pt"
+PATH = "./result/model/2_layered_model.pt"
 
 def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    #train_model()
+    train_model()
     #evaluate_model()
     #view_result()
     return
 
 def view_result():
     # show the model parameters
-    lr_model = model.quality_model()
+    lr_model = model.quality_model_2_layer()
     checkpoint = torch.load(PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
     for name, param in lr_model.named_parameters():
@@ -116,7 +116,7 @@ def evaluate_model():
     )
     eval_len = len(eval_loader)
     # load the model
-    lr_model = model.quality_model()
+    lr_model = model.quality_model_2_layer()
     checkpoint = torch.load(PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
 
@@ -152,7 +152,7 @@ def train_model():
         drop_last = True
     )
     # build the model object
-    lr_model = model.quality_model()
+    lr_model = model.quality_model_2_layer()
 
     # define custom weights
     custom_weight = torch.rand(lr_model.linear.weight.shape)
@@ -193,6 +193,7 @@ def train_model():
             # update parameters
             optimizer.step()
             print('epoch {}, loss {}, batch {}/{}'.format(epoch, loss.item(), batch_idx, num_batches))
+            break
     # save the trained model
     torch.save({'epoch': epoch, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss}, PATH)
 
