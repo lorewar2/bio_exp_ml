@@ -4,6 +4,27 @@ import random
 import numpy as np
 import scipy.special
 
+def index_file(read_path, write_path):
+    read_line_offset = [0]
+    write_index = 1
+    read_index = 1
+    with open(read_path) as fr:
+        with open(write_path) as fw:
+            read_line = fr.readline()
+            while read_line:
+                if read_line == "\n":
+                    read_line_offset.append(fr.tell())
+                    if read_index % 1_000_000 == 0:
+                        for offset in read_line_offset:
+                            write_line = "{:021d} {:021d}\n".format(write_index, offset)
+                            fw.write(write_line)
+                            write_index += 1
+                        read_line_offset.clear()
+                        print("indexed {} records".format(read_index))
+                    read_index += 1
+                read_line = fr.readline()
+    return
+    
 def print_topology_cut_scores():
     # arrays to save the result
     error_counts = [0] * 93

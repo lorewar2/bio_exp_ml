@@ -6,6 +6,7 @@ from dataset import QualityDataset
 from torch.utils.data import DataLoader
 import random
 import math
+import util
 
 PATH = "./result/model/2_layered_model.pt"
 
@@ -13,7 +14,8 @@ def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    train_model()
+    #train_model()
+    util.index_file("chr1+21.txt", "chr1+21.idx")
     #evaluate_model()
     #view_result()
     return
