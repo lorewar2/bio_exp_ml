@@ -9,7 +9,7 @@ def index_file(read_path, write_path):
     write_index = 1
     read_index = 1
     with open(read_path) as fr:
-        with open(write_path) as fw:
+        with open(write_path, 'a') as fw:
             read_line = fr.readline()
             while read_line:
                 if read_line == "\n":
@@ -24,7 +24,7 @@ def index_file(read_path, write_path):
                     read_index += 1
                 read_line = fr.readline()
     return
-    
+
 def print_topology_cut_scores():
     # arrays to save the result
     error_counts = [0] * 93
@@ -82,12 +82,11 @@ def calculate_binomial(n, k, prob):
     failure = np.power(1.00 - prob, n - k)
     return (binomial_coeff * success * failure)
 
-def pipeline_calculate_topology_score_with_probability():
+def pipeline_calculate_topology_score_with_probability(read_path, prob):
     # arrays to save the result
     error_counts = [0] * 300
     all_counts = [0] * 300
-    path = "./data/train_file.txt"
-    file = open(path, "r")
+    file = open(read_path, "r")
     for index, line in enumerate(file):
         split_txt = line.split(" ")
         if len(split_txt) != 11:
@@ -102,7 +101,7 @@ def pipeline_calculate_topology_score_with_probability():
         parallel_vec_f = []
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
-        recalculated_score = int(calculate_topology_score(split_txt[1][1], parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], int(split_txt[6]), 0.95))
+        recalculated_score = int(calculate_topology_score(split_txt[1][1], parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], int(split_txt[6]), prob))
         all_counts[recalculated_score] += 1
         if result == "true":
             error_counts[recalculated_score] += 1
@@ -111,8 +110,6 @@ def pipeline_calculate_topology_score_with_probability():
     print(error_counts)
     print(all_counts)
     return
-
-pipeline_calculate_topology_score_with_probability()
 
 def old_data_loader(path, start, length, get_random):
     file = open(path, "r")
