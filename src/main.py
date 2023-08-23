@@ -8,14 +8,14 @@ import random
 import math
 import util
 
-PATH = "./result/model/2_layered_model.pt"
+PATH = "./result/model/1_layered_model.pt"
 
 def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
     #train_model()
-    util.index_file("chr1+21.txt", "chr1+21.idx")
+    util.index_file("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
     #evaluate_model()
     #view_result()
     return
@@ -108,7 +108,7 @@ def evaluate_model():
     all_counts = [0] * 93
     batch_size = 1024
     # get the data to test
-    eval_dataset = QualityDataset ("data/train_file.txt", "data/train_file.idx")
+    eval_dataset = QualityDataset ("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
     eval_loader = DataLoader (
         dataset = eval_dataset,
         batch_size = batch_size,
@@ -118,7 +118,7 @@ def evaluate_model():
     )
     eval_len = len(eval_loader)
     # load the model
-    lr_model = model.quality_model_2_layer()
+    lr_model = model.quality_model_1_layer()
     checkpoint = torch.load(PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
 
@@ -159,10 +159,10 @@ def train_model():
     # define custom weights
     custom_weight = torch.rand(lr_model.linear.weight.shape)
     # calling base count
-    custom_weight[0][65] = torch.tensor(1.0)
+    custom_weight[0][65] = torch.tensor(1.0437)
     # other base count
-    custom_weight[0][66] = torch.tensor(-1.0)
-    custom_weight[0][67] = torch.tensor(-1.0)
+    custom_weight[0][66] = torch.tensor(-0.2337)
+    custom_weight[0][67] = torch.tensor(-0.9995)
     custom_weight[0][68] = torch.tensor(-1.0)
     # pacbio qual
     custom_weight[0][64] = torch.tensor(1.0)

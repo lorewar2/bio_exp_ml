@@ -9,18 +9,17 @@ class QualityDataset(torch.utils.data.Dataset):
         with open(self.index_loc) as f:
             f.seek(0, 2)
             offset = f.tell()
-            self.len = int((offset - 44) / 44)
+            self.len = int((offset - 23) / 23)
     def __len__(self):
         return self.len
     def __getitem__(self, index):
-        # search the index file to file the location # index offset is 44
+        # search the index file to file the location # index offset is 23
         location = 0
         retrieved_line = ""
         with open(self.index_loc) as f1:
-            f1.seek(index * 44)
+            f1.seek(index * 23)
             line = f1.readline()
-            line_split = line.split(" ")
-            location = int(line_split[1])
+            location = int(line)
         with open(self.file_loc) as f2:
             f2.seek(location)
             retrieved_line = f2.readline()
@@ -30,15 +29,15 @@ class QualityDataset(torch.utils.data.Dataset):
         #print(location)
         split_txt = retrieved_line.split(" ")
         # case of corrupted data $dont use this$ 
-        if len(split_txt) != 11:
+        if len(split_txt) != 12:
             return torch.zeros(1, 69), torch.tensor([[0.00]])
         # get three base context in one hot encoded
         #encoded_bases = self.one_hot_encoding_bases(split_txt[1][0]) + self.one_hot_encoding_bases(split_txt[1][1]) + self.one_hot_encoding_bases(split_txt[1][2])
-        encoded_bases = self.one_hot_encoding_64bit(split_txt[1][0], split_txt[1][1], split_txt[1][2])
+        encoded_bases = self.one_hot_encoding_64bit(split_txt[2][0], split_txt[2][1], split_txt[2][2])
         # get quality in float
-        quality = float(split_txt[3]) / 100
+        quality = float(split_txt[4]) / 100
         # get the num of parallel bases in float
-        parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
+        parallel_vec_s = [split_txt[8], split_txt[9], split_txt[10], split_txt[11]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
             for index_s in range(len(parallel_vec_s)):
@@ -52,7 +51,7 @@ class QualityDataset(torch.utils.data.Dataset):
         # make and append to the input tensor,
         input_tensor = torch.tensor([encoded_bases + [quality] + sorted_vec])
         # append to result tensor,
-        result = split_txt[0]
+        result = split_txt[1]
         if result == "false":
             label_tensor = torch.tensor([[1.0]])
             # continue if we want errors and its not a error

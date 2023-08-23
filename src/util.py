@@ -16,7 +16,7 @@ def index_file(read_path, write_path):
                     read_line_offset.append(fr.tell())
                     if read_index % 1_000_000 == 0:
                         for offset in read_line_offset:
-                            write_line = "{:021d} {:021d}\n".format(write_index, offset)
+                            write_line = "{:021d}\n".format(offset)
                             fw.write(write_line)
                             write_index += 1
                         read_line_offset.clear()
@@ -89,10 +89,10 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
     file = open(read_path, "r")
     for index, line in enumerate(file):
         split_txt = line.split(" ")
-        if len(split_txt) != 11:
+        if len(split_txt) != 12:
             continue
-        result = split_txt[0]
-        parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
+        result = split_txt[1]
+        parallel_vec_s = [split_txt[8], split_txt[9], split_txt[10], split_txt[11]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
             for index_s in range(len(parallel_vec_s)):
@@ -101,7 +101,7 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
         parallel_vec_f = []
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
-        recalculated_score = int(calculate_topology_score(split_txt[1][1], parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], int(split_txt[6]), prob))
+        recalculated_score = int(calculate_topology_score(split_txt[2][1], parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], int(split_txt[7]), prob))
         all_counts[recalculated_score] += 1
         if result == "true":
             error_counts[recalculated_score] += 1
