@@ -15,7 +15,8 @@ def main():
     torch.manual_seed(0)
     random.seed(2)
     #train_model()
-    util.index_file("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
+    #util.index_file("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
+    util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr1+21.txt", 0.85)
     #evaluate_model()
     #view_result()
     return

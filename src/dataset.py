@@ -9,17 +9,17 @@ class QualityDataset(torch.utils.data.Dataset):
         with open(self.index_loc) as f:
             f.seek(0, 2)
             offset = f.tell()
-            self.len = int((offset - 23) / 23)
+            self.len = int((offset - 22) / 22)
     def __len__(self):
         return self.len
     def __getitem__(self, index):
-        # search the index file to file the location # index offset is 23
+        # search the index file to file the location # index offset is 22
         location = 0
         retrieved_line = ""
         with open(self.index_loc) as f1:
-            f1.seek(index * 23)
+            f1.seek(index * 22)
             line = f1.readline()
-            location = int(line)
+            location = int(line.strip())
         with open(self.file_loc) as f2:
             f2.seek(location)
             retrieved_line = f2.readline()

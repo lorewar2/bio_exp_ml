@@ -12,16 +12,15 @@ def index_file(read_path, write_path):
         with open(write_path, 'a') as fw:
             read_line = fr.readline()
             while read_line:
-                if read_line == "\n":
-                    read_line_offset.append(fr.tell())
-                    if read_index % 1_000_000 == 0:
-                        for offset in read_line_offset:
-                            write_line = "{:021d}\n".format(offset)
-                            fw.write(write_line)
-                            write_index += 1
-                        read_line_offset.clear()
-                        print("indexed {} records".format(read_index))
-                    read_index += 1
+                read_line_offset.append(fr.tell())
+                if read_index % 1_000_000 == 0:
+                    for offset in read_line_offset:
+                        write_line = "{:021d}\n".format(offset)
+                        fw.write(write_line)
+                        write_index += 1
+                    read_line_offset.clear()
+                    print("indexed {} records".format(read_index))
+                read_index += 1
                 read_line = fr.readline()
     return
 
@@ -62,6 +61,7 @@ def calculate_topology_score(calling_base, base_A_count, base_C_count, base_G_co
     ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_G + ln_prob_base_G)
     ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_T + ln_prob_base_T)
 
+    
     if calling_base == "A":
         correct_rate = np.exp(ln_prob_data_given_A + ln_prob_base_A - ln_sum_of_probabilities)
     elif calling_base == "C":
@@ -70,6 +70,8 @@ def calculate_topology_score(calling_base, base_A_count, base_C_count, base_G_co
         correct_rate = np.exp(ln_prob_data_given_G + ln_prob_base_G - ln_sum_of_probabilities)
     elif calling_base == "T":
         correct_rate = np.exp(ln_prob_data_given_T + ln_prob_base_T - ln_sum_of_probabilities)
+    else:
+        correct_rate = np.exp(ln_prob_data_given_A + ln_prob_base_A - ln_sum_of_probabilities)
 
     error_rate = 1.0 - correct_rate
     quality_score = (-10.00) * np.log10(error_rate + 0.000000000000000000001)
