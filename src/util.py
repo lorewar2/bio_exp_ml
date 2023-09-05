@@ -4,15 +4,70 @@ import random
 import numpy as np
 import scipy.special
 
+def list_corrected_errors(read_path, write_path):
+    # open the file with ml data
+    file = open(read_path, "r")
+    # go line by line
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        # check if line is valid
+        if len(split_txt) != 12:
+            continue
+        result = split_txt[1]
+        # only check the false ones
+        if result == 'false':
+            parallel_vec_s = [split_txt[8], split_txt[9], split_txt[10], split_txt[11]]
+            char_remov = ["]", "[", ",", "\n"]
+            for char in char_remov:
+                for index_s in range(len(parallel_vec_s)):
+                    temp = parallel_vec_s[index_s].replace(char, "")
+                    parallel_vec_s[index_s] = temp
+            parallel_vec_f = []
+            for parallel in parallel_vec_s:
+                parallel_vec_f.append(float(parallel))
+            # save required data
+            calling_base = split_txt[2][1]
+            calling_base_seq_num = 0
+            top_base = "A"
+            top_base_seq_num = max(parallel_vec_f)
+            max_index = parallel_vec_f.index(max(parallel_vec_f))
+            if max_index == 0:
+                top_base = "A"
+            elif max_index == 1:
+                top_base = "C"
+            elif max_index == 2:
+                top_base = "G"
+            elif max_index == 3:
+                top_base = "T"
+
+            if calling_base == "A":
+                calling_base_seq_num = parallel_vec_f[0]
+            elif calling_base == "C":
+                calling_base_seq_num = parallel_vec_f[1]
+            elif calling_base == "G":
+                calling_base_seq_num = parallel_vec_f[2]
+            elif calling_base == "T":
+                calling_base_seq_num = parallel_vec_f[3]
+            # if calling base is not equal to top base, error corrected? need reference to check
+            if calling_base != top_base:
+                print("well that was a waste of time")
+    return
+
 def index_file(read_path, write_path):
+    # array to save offsets
     read_line_offset = [0]
+    # indices to output
     write_index = 1
     read_index = 1
+    # open files read and write files
     with open(read_path) as fr:
         with open(write_path, 'a') as fw:
+            # go line by line in read
             read_line = fr.readline()
             while read_line:
+                # get the current offset and add to array
                 read_line_offset.append(fr.tell())
+                # every million save array to file and clear array
                 if read_index % 1_000_000 == 0:
                     for offset in read_line_offset:
                         write_line = "{:021d}\n".format(offset)
@@ -61,7 +116,6 @@ def calculate_topology_score(calling_base, base_A_count, base_C_count, base_G_co
     ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_G + ln_prob_base_G)
     ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_T + ln_prob_base_T)
 
-    
     if calling_base == "A":
         correct_rate = np.exp(ln_prob_data_given_A + ln_prob_base_A - ln_sum_of_probabilities)
     elif calling_base == "C":
