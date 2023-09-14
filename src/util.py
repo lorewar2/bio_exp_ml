@@ -4,6 +4,34 @@ import random
 import numpy as np
 import scipy.special
 
+def base_to_int(base):
+    result = 0
+    if base == "A":
+        result = 0
+    elif base == "C":
+        result = 1
+    elif base == "G":
+        result = 2
+    elif base == "T":
+        result = 3
+    return result
+
+def list_corrected_errors_rust_input(read_path):
+    result_array = np.zeros((4, 4, 16))
+    # open the file with ml data
+    file = open(read_path, "r")
+    # go line by line
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        ref_base = base_to_int(split_txt[0][1])
+        alt_base = base_to_int(split_txt[2][0])
+        first_in_three_base = base_to_int(split_txt[0][0])
+        third_in_three_base = base_to_int(split_txt[0][2])
+        one_three_value = first_in_three_base * 4 + third_in_three_base
+        result_array[ref_base][alt_base][one_three_value] += 1
+    print(result_array)
+    return
+
 def list_corrected_errors(read_path, write_path):
     # open the file with ml data
     file = open(read_path, "r")
