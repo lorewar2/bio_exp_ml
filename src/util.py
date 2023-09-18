@@ -4,7 +4,67 @@ import random
 import numpy as np
 import scipy.special
 
-def base_to_int(base):
+def check_and_clean_data (path):
+    # open the file with ml data
+    file = open(path, "r")
+    # go line by line
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        if len(split_txt) != 12:
+            print("line number {} is invalid, line: {}".format(index, line))
+        #encoded_bases = self.one_hot_encoding_bases(split_txt[1][0]) + self.one_hot_encoding_bases(split_txt[1][1]) + self.one_hot_encoding_bases(split_txt[1][2])
+        three_context_bases = [split_txt[2][0], split_txt[2][1], split_txt[2][2]]
+        # get quality in float
+        quality = float(split_txt[4]) / 100
+        # get the num of parallel bases in float
+        parallel_vec_s = [split_txt[8], split_txt[9], split_txt[10], split_txt[11]]
+        char_remov = ["]", "[", ",", "\n"]
+        for char in char_remov:
+            for index_s in range(len(parallel_vec_s)):
+                temp = parallel_vec_s[index_s].replace(char, "")
+                parallel_vec_s[index_s] = temp
+        parallel_vec_f = []
+        for parallel in parallel_vec_s:
+            parallel_vec_f.append(float(parallel))
+        # rearrange so that the calling base num first and rest in decending order
+        sorted_vec = rearrange_sort_parallel_bases(parallel_vec_f, split_txt[1][1])
+        if sorted_vec[1] > sorted_vec[0] and split_txt[1] == "true":
+            print("line number {} is invalid, true with parallel higher line: {}".format(index, line))
+    return
+
+def rearrange_sort_parallel_bases(parallel_vec, base):
+    if base == "A":
+        selected_base = parallel_vec[0]
+        del parallel_vec[0]
+    elif base == "C":
+        selected_base = parallel_vec[1]
+        del parallel_vec[1]
+    elif base == "G":
+        selected_base = parallel_vec[2]
+        del parallel_vec[2]
+    elif base == "T":
+        selected_base = parallel_vec[3]
+        del parallel_vec[3]
+    else:
+        selected_base = parallel_vec[0]
+        del parallel_vec[0]
+    parallel_vec.sort(reverse = True)
+    parallel_vec = [selected_base] + parallel_vec
+    return parallel_vec
+
+def one_hot_encoding_bases(base):
+    one_hot_base = [0.0] * 4
+    if base == "A":
+        one_hot_base[0] = 1.0
+    elif base == "C":
+        one_hot_base[1] = 1.0
+    elif base == "G":
+        one_hot_base[2] = 1.0
+    elif base == "T":
+        one_hot_base[3] = 1.0
+    return one_hot_base
+
+def get_base_to_int(base):
     result = 0
     if base == "A":
         result = 0
@@ -23,10 +83,10 @@ def list_corrected_errors_rust_input(read_path):
     # go line by line
     for index, line in enumerate(file):
         split_txt = line.split(" ")
-        ref_base = base_to_int(split_txt[0][1])
-        alt_base = base_to_int(split_txt[2][0])
-        first_in_three_base = base_to_int(split_txt[0][0])
-        third_in_three_base = base_to_int(split_txt[0][2])
+        ref_base = get_base_to_int(split_txt[0][1])
+        alt_base = get_base_to_int(split_txt[2][0])
+        first_in_three_base = get_base_to_int(split_txt[0][0])
+        third_in_three_base = get_base_to_int(split_txt[0][2])
         one_three_value = first_in_three_base * 4 + third_in_three_base
         result_array[ref_base][alt_base][one_three_value] += 1
     print(result_array)
