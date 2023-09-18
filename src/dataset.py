@@ -47,7 +47,7 @@ class QualityDataset(torch.utils.data.Dataset):
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
         # rearrange so that the calling base num first and rest in decending order
-        sorted_vec = self.rearrange_sort_parallel_bases(parallel_vec_f, split_txt[1][1])
+        sorted_vec = self.rearrange_sort_parallel_bases(parallel_vec_f, split_txt[2][1])
         # make and append to the input tensor,
         input_tensor = torch.tensor([encoded_bases + [quality] + sorted_vec])
         # append to result tensor,

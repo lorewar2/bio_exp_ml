@@ -8,7 +8,9 @@ import random
 import math
 import util
 
-PATH = "./result/model/1_layered_model.pt"
+DATA_PATH = "/data1/hifi_consensus/quality_data/chr2.txt"
+INDEX_PATH = "/data1/hifi_consensus/quality_data/chr2.idx"
+MODEL_PATH = "./result/model/2_layered_model.pt"
 
 def main():
     # set the seed
@@ -17,15 +19,15 @@ def main():
     #train_model()
     #util.index_file("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
     #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr1+21.txt", 0.85)
-    util.check_and_clean_data("/data1/hifi_consensus/quality_data/chr2.txt")
+    #util.check_and_clean_data("/data1/hifi_consensus/quality_data/chr2.txt")
     #evaluate_model()
-    #view_result()
+    view_result()
     return
 
 def view_result():
     # show the model parameters
     lr_model = model.quality_model_2_layer()
-    checkpoint = torch.load(PATH)
+    checkpoint = torch.load(MODEL_PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
     for name, param in lr_model.named_parameters():
         if param.requires_grad:
@@ -37,7 +39,7 @@ def view_result():
     correct_tensor = torch.empty((required_number, 71), dtype = torch.float32)
     error_tensor_len = 0
     error_tensor = torch.empty((required_number, 71), dtype = torch.float32)
-    eval_dataset = QualityDataset ("data/train_file.txt", "data/train_file.idx")
+    eval_dataset = QualityDataset (DATA_PATH, INDEX_PATH)
     eval_loader = DataLoader (
         dataset = eval_dataset,
         batch_size = batch_size,
@@ -83,25 +85,13 @@ def print_result_tensor(obtained_tensor):
     first_base = three_base_context_64bit % 4
     second_base = int(three_base_context_64bit / 4) % 4
     third_base = int(three_base_context_64bit / 16) % 4
-    three_base_context = [int_to_base(first_base), int_to_base(second_base), int_to_base(third_base)]
+    three_base_context = [util.get_int_to_base(first_base), util.get_int_to_base(second_base), util.get_int_to_base(third_base)]
     pacbio_qual = obtained_tensor[64].item()
     parallel_nodes = obtained_tensor[65:69]
     correct_rate = obtained_tensor[70].item()
     calc_qual = int(-10 * math.log(1 - correct_rate, 10))
     print("three_base_context {} parallel_nodes {} pacbio_qual {} correct_rate {} calculated_qual {} ".format(three_base_context, parallel_nodes, pacbio_qual, correct_rate, calc_qual))
     return
-
-def int_to_base(number):
-    base = 'P'
-    if number == 0:
-        base = 'A'
-    elif number == 1:
-        base = 'C'
-    elif number == 2:
-        base = 'G'
-    elif number == 3:
-        base = 'T'
-    return base
 
 # this function will evalute the model and aggregate the results (output of the model for wrong and right)
 def evaluate_model():
@@ -110,7 +100,7 @@ def evaluate_model():
     all_counts = [0] * 93
     batch_size = 1024
     # get the data to test
-    eval_dataset = QualityDataset ("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
+    eval_dataset = QualityDataset (DATA_PATH, INDEX_PATH)
     eval_loader = DataLoader (
         dataset = eval_dataset,
         batch_size = batch_size,
@@ -120,8 +110,8 @@ def evaluate_model():
     )
     eval_len = len(eval_loader)
     # load the model
-    lr_model = model.quality_model_1_layer()
-    checkpoint = torch.load(PATH)
+    lr_model = model.quality_model_2_layer()
+    checkpoint = torch.load(MODEL_PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
 
     # run the data
@@ -147,7 +137,7 @@ def train_model():
     epochs = 1
     batch_size = 1024    
     # data loading
-    train_dataset = QualityDataset ("data/train_file.txt", "data/train_file.idx")
+    train_dataset = QualityDataset (DATA_PATH, INDEX_PATH)
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
@@ -197,9 +187,8 @@ def train_model():
             # update parameters
             optimizer.step()
             print('epoch {}, loss {}, batch {}/{}'.format(epoch, loss.item(), batch_idx, num_batches))
-            break
-    # save the trained model
-    torch.save({'epoch': epoch, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss}, PATH)
+        # save the trained model after each epoch
+        torch.save({'epoch': epoch, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss}, MODEL_PATH)
 
 if __name__ == "__main__":
     main()

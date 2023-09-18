@@ -5,19 +5,23 @@ import numpy as np
 import scipy.special
 
 def check_and_clean_data (path):
+    other_bigger_count = 0
     # open the file with ml data
     file = open(path, "r")
     # go line by line
     for index, line in enumerate(file):
+        if index % 100000 == 0:
+            print("current line {} other bigger count {}".format(index, other_bigger_count))
         split_txt = line.split(" ")
-        if len(split_txt) != 12:
+        if len(split_txt) != 11:
             print("line number {} is invalid, line: {}".format(index, line))
+            continue
         #encoded_bases = self.one_hot_encoding_bases(split_txt[1][0]) + self.one_hot_encoding_bases(split_txt[1][1]) + self.one_hot_encoding_bases(split_txt[1][2])
         three_context_bases = [split_txt[2][0], split_txt[2][1], split_txt[2][2]]
         # get quality in float
         quality = float(split_txt[4]) / 100
         # get the num of parallel bases in float
-        parallel_vec_s = [split_txt[8], split_txt[9], split_txt[10], split_txt[11]]
+        parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
             for index_s in range(len(parallel_vec_s)):
@@ -27,9 +31,10 @@ def check_and_clean_data (path):
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
         # rearrange so that the calling base num first and rest in decending order
-        sorted_vec = rearrange_sort_parallel_bases(parallel_vec_f, split_txt[1][1])
-        if sorted_vec[1] > sorted_vec[0] and split_txt[1] == "true":
-            print("line number {} is invalid, true with parallel higher line: {}".format(index, line))
+        sorted_vec = rearrange_sort_parallel_bases(parallel_vec_f, split_txt[2][1])
+        if sorted_vec[1] > sorted_vec[0] and split_txt[1] == "false":
+            #print("line number {} is invalid, true with parallel higher line: {}".format(index, line))
+            other_bigger_count += 1
     return
 
 def rearrange_sort_parallel_bases(parallel_vec, base):
@@ -76,6 +81,18 @@ def get_base_to_int(base):
         result = 3
     return result
 
+def get_int_to_base(number):
+    base = 'P'
+    if number == 0:
+        base = 'A'
+    elif number == 1:
+        base = 'C'
+    elif number == 2:
+        base = 'G'
+    elif number == 3:
+        base = 'T'
+    return base
+    
 def list_corrected_errors_rust_input(read_path):
     result_array = np.zeros((4, 4, 16))
     # open the file with ml data
