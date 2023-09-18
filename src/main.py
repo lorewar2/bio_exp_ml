@@ -16,12 +16,12 @@ def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    #train_model()
+    train_model()
     #util.index_file("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
     #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr1+21.txt", 0.85)
     #util.check_and_clean_data("/data1/hifi_consensus/quality_data/chr2.txt")
     #evaluate_model()
-    view_result()
+    #view_result()
     return
 
 def view_result():
@@ -33,7 +33,7 @@ def view_result():
         if param.requires_grad:
             print(name, param.data)
     # get and view 100 error data and 100 correct data
-    required_number = 5
+    required_number = 10
     batch_size = 1024
     correct_tensor_len = 0
     correct_tensor = torch.empty((required_number, 71), dtype = torch.float32)
@@ -142,7 +142,7 @@ def train_model():
         dataset = train_dataset,
         batch_size = batch_size,
         num_workers = 0,
-        shuffle = True,
+        shuffle = False,
         drop_last = True
     )
     # build the model object
@@ -150,14 +150,16 @@ def train_model():
 
     # define custom weights
     custom_weight = torch.rand(lr_model.linear.weight.shape)
+    first_layer_size = 200
     # calling base count
-    custom_weight[0][65] = torch.tensor(1.0437)
-    # other base count
-    custom_weight[0][66] = torch.tensor(-0.2337)
-    custom_weight[0][67] = torch.tensor(-0.9995)
-    custom_weight[0][68] = torch.tensor(-1.0)
-    # pacbio qual
-    custom_weight[0][64] = torch.tensor(1.0)
+    for i in range(0, first_layer_size):
+        custom_weight[i][65] = torch.tensor(1.0437)
+        # other base count
+        custom_weight[i][66] = torch.tensor(-0.2337)
+        custom_weight[i][67] = torch.tensor(-0.9995)
+        custom_weight[i][68] = torch.tensor(-1.0)
+        # pacbio qual
+        custom_weight[i][64] = torch.tensor(1.0)
     # put the weights in the model
     lr_model.linear.weight = torch.nn.Parameter(custom_weight)
 

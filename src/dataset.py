@@ -29,7 +29,7 @@ class QualityDataset(torch.utils.data.Dataset):
         #print(location)
         split_txt = retrieved_line.split(" ")
         # case of corrupted data $dont use this$ 
-        if len(split_txt) != 12:
+        if len(split_txt) != 11:
             return torch.zeros(1, 69), torch.tensor([[0.00]])
         # get three base context in one hot encoded
         #encoded_bases = self.one_hot_encoding_bases(split_txt[1][0]) + self.one_hot_encoding_bases(split_txt[1][1]) + self.one_hot_encoding_bases(split_txt[1][2])
@@ -37,7 +37,7 @@ class QualityDataset(torch.utils.data.Dataset):
         # get quality in float
         quality = float(split_txt[4]) / 100
         # get the num of parallel bases in float
-        parallel_vec_s = [split_txt[8], split_txt[9], split_txt[10], split_txt[11]]
+        parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
             for index_s in range(len(parallel_vec_s)):
