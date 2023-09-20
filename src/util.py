@@ -4,6 +4,35 @@ import random
 import numpy as np
 import scipy.special
 
+def pipeline_calculate_topology_score_with_probability(read_path, prob):
+    # arrays to save the result
+    error_counts = [0] * 300
+    all_counts = [0] * 300
+    file = open(read_path, "r")
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        if len(split_txt) != 11:
+            continue
+        result = split_txt[1]
+        parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
+        char_remov = ["]", "[", ",", "\n"]
+        for char in char_remov:
+            for index_s in range(len(parallel_vec_s)):
+                temp = parallel_vec_s[index_s].replace(char, "")
+                parallel_vec_s[index_s] = temp
+        parallel_vec_f = []
+        for parallel in parallel_vec_s:
+            parallel_vec_f.append(float(parallel))
+        recalculated_score = int(calculate_topology_score(split_txt[2][1], parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], int(split_txt[6]), prob))
+        all_counts[recalculated_score] += 1
+        if result == "true":
+            error_counts[recalculated_score] += 1
+        if index % 100000 == 0:
+            print("Running line {}".format(index))
+    print(error_counts)
+    print(all_counts)
+    return
+
 def check_and_clean_data (path):
     other_bigger_count = 0
     # open the file with ml data
@@ -242,35 +271,6 @@ def calculate_binomial(n, k, prob):
     success = np.power(prob, k)
     failure = np.power(1.00 - prob, n - k)
     return (binomial_coeff * success * failure)
-
-def pipeline_calculate_topology_score_with_probability(read_path, prob):
-    # arrays to save the result
-    error_counts = [0] * 300
-    all_counts = [0] * 300
-    file = open(read_path, "r")
-    for index, line in enumerate(file):
-        split_txt = line.split(" ")
-        if len(split_txt) != 12:
-            continue
-        result = split_txt[1]
-        parallel_vec_s = [split_txt[8], split_txt[9], split_txt[10], split_txt[11]]
-        char_remov = ["]", "[", ",", "\n"]
-        for char in char_remov:
-            for index_s in range(len(parallel_vec_s)):
-                temp = parallel_vec_s[index_s].replace(char, "")
-                parallel_vec_s[index_s] = temp
-        parallel_vec_f = []
-        for parallel in parallel_vec_s:
-            parallel_vec_f.append(float(parallel))
-        recalculated_score = int(calculate_topology_score(split_txt[2][1], parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], int(split_txt[7]), prob))
-        all_counts[recalculated_score] += 1
-        if result == "true":
-            error_counts[recalculated_score] += 1
-        if index % 100000 == 0:
-            print("Running line {}".format(index))
-    print(error_counts)
-    print(all_counts)
-    return
 
 def old_data_loader(path, start, length, get_random):
     file = open(path, "r")

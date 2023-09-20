@@ -16,9 +16,9 @@ def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    train_model()
+    #train_model()
     #util.index_file("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
-    #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr1+21.txt", 0.85)
+    util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr3.txt", 0.85)
     #util.check_and_clean_data("/data1/hifi_consensus/quality_data/chr2.txt")
     #evaluate_model()
     #view_result()
@@ -134,14 +134,14 @@ def evaluate_model():
 def train_model():
     # train parameters
     learningRate = 0.00001
-    epochs = 1
-    batch_size = 1024    
+    epochs = 10
+    batch_size = 1024
     # data loading
     train_dataset = QualityDataset (DATA_PATH, INDEX_PATH)
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
-        num_workers = 0,
+        num_workers = 32,
         shuffle = False,
         drop_last = True
     )
@@ -150,9 +150,9 @@ def train_model():
 
     # define custom weights
     custom_weight = torch.rand(lr_model.linear.weight.shape)
-    first_layer_to_second_size = 200
+    first_layer_size = 200
     # calling base count
-    for i in range(0, first_layer_to_second_size):
+    for i in range(0, first_layer_size):
         custom_weight[i][65] = torch.tensor(1.0437)
         # other base count
         custom_weight[i][66] = torch.tensor(-0.2337)
@@ -163,22 +163,22 @@ def train_model():
     # put the weights in the model
     lr_model.linear.weight = torch.nn.Parameter(custom_weight)
 
-    # optimizer 
+    # optimizer
     optimizer = torch.optim.SGD(lr_model.parameters(), lr=learningRate)
     criterion = torch.nn.MSELoss()
 
     # torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, PATH)
     # # load the previous saved trained model
-    # checkpoint = torch.load(PATH)
-    # lr_model.load_state_dict(checkpoint['model_state_dict'])
-    # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    # epoch = checkpoint['epoch']
-    # loss = checkpoint['loss']
+    checkpoint = torch.load(MODEL_PATH)
+    lr_model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    epoch = checkpoint['epoch']
+    loss = checkpoint['loss']
     num_batches = len(train_loader)
     # train loop
     for epoch in range(epochs):
         for batch_idx, (batch_inputs, batch_labels) in enumerate(train_loader):
-            # clear gradient buffers 
+            # clear gradient buffers
             optimizer.zero_grad()
             # get output from the model, given the inputs
             outputs = lr_model(batch_inputs)
