@@ -2,17 +2,36 @@ import torch
 import os
 
 class QualityDataset(torch.utils.data.Dataset):
-    def __init__(self, file_loc, index_loc):
+    def __init__(self, file_loc, index_loc, load_all):
         self.file_loc = file_loc
         self.index_loc = index_loc
+        self.load_all = load_all
         # get len and save it
         with open(self.index_loc) as f:
             f.seek(0, 2)
             offset = f.tell()
             self.len = int((offset - 22) / 22)
+        # load all data
+        if load_all:
+            self.label_tensor = torch.empty((self.len, 1), dtype = torch.float32)
+            self.input_tensor = torch.empty((self.len, 69), dtype = torch.float32)
+            for index in range(0, self.len):
+                temp_input_tensor, temp_label_tensor = self.retrieve_item_from_disk(index)
+                self.input_tensor[index] = temp_input_tensor
+                self.label_tensor[index] = temp_label_tensor
+
     def __len__(self):
         return self.len
+
     def __getitem__(self, index):
+        if self.load_all == True:
+            input_tensor = self.input_tensor[index]
+            label_tensor = self.label_tensor[index]
+        else:
+            input_tensor, label_tensor = self.retrieve_item_from_disk(index)
+        return input_tensor, label_tensor
+
+    def retrieve_item_from_disk(self, index):
         # search the index file to file the location # index offset is 22
         location = 0
         retrieved_line = ""

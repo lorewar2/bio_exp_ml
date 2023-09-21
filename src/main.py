@@ -16,9 +16,9 @@ def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    #train_model()
+    train_model()
     #util.index_file("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
-    util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr3.txt", 0.85)
+    #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr3.txt", 0.85)
     #util.check_and_clean_data("/data1/hifi_consensus/quality_data/chr2.txt")
     #evaluate_model()
     #view_result()
@@ -100,7 +100,7 @@ def evaluate_model():
     all_counts = [0] * 93
     batch_size = 1024
     # get the data to test
-    eval_dataset = QualityDataset (DATA_PATH, INDEX_PATH)
+    eval_dataset = QualityDataset (DATA_PATH, INDEX_PATH, False)
     eval_loader = DataLoader (
         dataset = eval_dataset,
         batch_size = batch_size,
@@ -137,12 +137,12 @@ def train_model():
     epochs = 10
     batch_size = 1024
     # data loading
-    train_dataset = QualityDataset (DATA_PATH, INDEX_PATH)
+    train_dataset = QualityDataset (DATA_PATH, INDEX_PATH, True)
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
         num_workers = 32,
-        shuffle = False,
+        shuffle = True,
         drop_last = True
     )
     # build the model object
