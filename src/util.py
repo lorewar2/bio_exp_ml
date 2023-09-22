@@ -23,7 +23,7 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
         parallel_vec_f = []
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
-        recalculated_score = int(calculate_topology_score(split_txt[2][1], parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], int(split_txt[6]), prob))
+        recalculated_score = int(calculate_topology_score(split_txt[2][1], parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
         all_counts[recalculated_score] += 1
         if recalculated_score == 0:
             print("gave 0 score: {}".format(line))
