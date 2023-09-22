@@ -16,9 +16,9 @@ def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    train_model()
+    #train_model()
     #util.index_file("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
-    #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr3.txt", 0.85)
+    util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr4.txt", 0.85)
     #util.check_and_clean_data("/data1/hifi_consensus/quality_data/chr2.txt")
     #evaluate_model()
     #view_result()
@@ -39,7 +39,7 @@ def view_result():
     correct_tensor = torch.empty((required_number, 71), dtype = torch.float32)
     error_tensor_len = 0
     error_tensor = torch.empty((required_number, 71), dtype = torch.float32)
-    eval_dataset = QualityDataset (DATA_PATH, INDEX_PATH)
+    eval_dataset = QualityDataset (DATA_PATH, INDEX_PATH, False)
     eval_loader = DataLoader (
         dataset = eval_dataset,
         batch_size = batch_size,
@@ -137,7 +137,7 @@ def train_model():
     epochs = 10
     batch_size = 1024
     # data loading
-    train_dataset = QualityDataset (DATA_PATH, INDEX_PATH, True)
+    train_dataset = QualityDataset (DATA_PATH, INDEX_PATH, False)
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
