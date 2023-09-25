@@ -4,6 +4,38 @@ import random
 import numpy as np
 import scipy.special
 
+def old_format_to_new_format_converter(read_path, write_path):
+    # array to save offsets
+    modified_lines = []
+    # indices to output
+    write_index = 1
+    read_index = 1
+    # open files read and write files
+    file = open(read_path, "r")
+    with open(write_path, 'a') as fw:
+        for index, line in enumerate(file):
+            split_txt = line.split(" ")
+            if len(split_txt) != 12:
+                continue
+            location = split_txt[0]
+            result = split_txt[1]
+            base_context = split_txt[2]
+            base_1 = split_txt[3]
+            pac_qual = split_txt[4]
+            base_2 = split_txt[5]
+            total_count = split_txt[7]
+            parallel1 = split_txt[8]
+            parallel2 = split_txt[9]
+            parallel3 = split_txt[10]
+            parallel4 = split_txt[11]
+            modified_lines.append("{} {} {} {} {} {} {} {} {} {} {}".format(location, result, base_context, base_1, pac_qual, base_2, total_count, parallel1, parallel2, parallel3, parallel4))
+            if index % 1_000_000 == 0:
+                for write_line in modified_lines:
+                    fw.write(write_line)
+                modified_lines.clear()
+                print("indexed {} records".format(index))
+    return
+
 def pipeline_calculate_topology_score_with_probability(read_path, prob):
     # arrays to save the result
     error_counts = [0] * 300
@@ -25,8 +57,6 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
             parallel_vec_f.append(float(parallel))
         recalculated_score = int(calculate_topology_score(split_txt[2][1], parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
         all_counts[recalculated_score] += 1
-        if recalculated_score == 0:
-            print("gave 0 score: {}".format(line))
         if result == "true":
             error_counts[recalculated_score] += 1
         if index % 100000 == 0:
