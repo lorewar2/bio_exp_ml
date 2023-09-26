@@ -4,6 +4,27 @@ import random
 import numpy as np
 import scipy.special
 
+def print_pacbio_scores(read_path):
+    # arrays to save the result
+    error_counts = [0] * 93
+    all_counts = [0] * 93
+    file = open(read_path, "r")
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        if len(split_txt) != 11:
+            continue
+        result = split_txt[1]
+        position = int(split_txt[4])
+        all_counts[position] += 1
+        if result == "true":
+            error_counts[position] += 1
+        if index % 100000 == 0:
+            print("Running line {}".format(index))
+    print(error_counts)
+    print(all_counts)
+    print(read_path)
+    return
+
 def old_format_to_new_format_converter(read_path, write_path):
     # array to save offsets
     modified_lines = []
