@@ -20,18 +20,18 @@ def make_unfiltered(read_path, error_path, write_path):
     with open(write_path, 'a') as fw:
         for index, line in enumerate(read_file):
             split_txt = line.split(" ")
-            if len(split_txt) != 12:
+            if len(split_txt) != 11:
                 continue
             location = int(split_txt[0])
             base_context = split_txt[2]
             base_1 = split_txt[3]
             pac_qual = split_txt[4]
             base_2 = split_txt[5]
-            total_count = split_txt[7]
-            parallel1 = split_txt[8]
-            parallel2 = split_txt[9]
-            parallel3 = split_txt[10]
-            parallel4 = split_txt[11]
+            total_count = split_txt[6]
+            parallel1 = split_txt[7]
+            parallel2 = split_txt[8]
+            parallel3 = split_txt[9]
+            parallel4 = split_txt[10]
             required_index = [y[0] for y in error_lines].index(location)
             if base_context[1] == error_lines[required_index][1]:
                 result = "true"
@@ -44,7 +44,7 @@ def make_unfiltered(read_path, error_path, write_path):
                 modified_lines.clear()
                 print("indexed {} records".format(index))
     return
-    
+
 def print_pacbio_scores(read_path):
     # arrays to save the result
     error_counts = [0] * 93
