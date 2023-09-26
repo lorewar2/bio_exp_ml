@@ -5,20 +5,20 @@ import numpy as np
 import scipy.special
 
 def make_sub_array(error_lines, location):
-    range = 50
+    range = 100
     sub_error_array = []
     closest_error_value = 1000000
     closest_error_index = 0
     for index, error_line in enumerate(error_lines):
-        if closest_error_value < abs(error_line[0] - location):
+        if closest_error_value > abs(error_line[0] - location):
             closest_error_value = abs(error_line[0] - location)
             closest_error_index = index
     if len(error_lines) < closest_error_index + range:
-        sub_error_array = error_lines[closest_error_index - range, len(error_lines)]
+        sub_error_array = error_lines[closest_error_index - range: len(error_lines)]
     elif closest_error_index < range:
-        sub_error_array = error_lines[0, closest_error_index + range]
+        sub_error_array = error_lines[0: closest_error_index + range]
     else:
-        sub_error_array = error_lines[closest_error_index - range, closest_error_index + range]
+        sub_error_array = error_lines[closest_error_index - range: closest_error_index + range]
     sub_array_low = sub_error_array[0][0]
     sub_array_high = sub_error_array[len(sub_error_array) - 1][0]
     return sub_error_array, sub_array_low, sub_array_high
@@ -26,6 +26,8 @@ def make_sub_array(error_lines, location):
 def make_unfiltered(read_path, error_path, write_path):
     # error list save
     error_lines = []
+    error_count = 0
+    last_error_location = 0
     modified_lines = []
     sub_error_array = []
     sub_array_low = -1
@@ -60,17 +62,19 @@ def make_unfiltered(read_path, error_path, write_path):
                 required_index = [y[0] for y in sub_array].index(location)
                 if base_context[1] == error_lines[required_index][1]:
                     result = "true"
+                    if last_error_location != location:
+                        last_error_location = location
+                        error_count += 1
                 else:
                     result = "false"
             except ValueError:
                 result = "false"
             modified_lines.append("{} {} {} {} {} {} {} {} {} {} {}".format(location, result, base_context, base_1, pac_qual, base_2, total_count, parallel1, parallel2, parallel3, parallel4))
-            print(index)
             if index % 1_000_000 == 0:
                 for write_line in modified_lines:
                     fw.write(write_line)
                 modified_lines.clear()
-                print("indexed {} records".format(index))
+                print("processed {} records, errors {}/{}".format(index, error_count, len(error_lines)))
     return
 
 def print_pacbio_scores(read_path):
