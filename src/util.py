@@ -4,10 +4,32 @@ import random
 import numpy as np
 import scipy.special
 
+def make_sub_array(error_lines, location):
+    range = 50
+    sub_error_array = []
+    closest_error_value = 1000000
+    closest_error_index = 0
+    for index, error_line in enumerate(error_lines):
+        if closest_error_value < abs(error_line[0] - location):
+            closest_error_value = abs(error_line[0] - location)
+            closest_error_index = index
+    if len(error_lines) < closest_error_index + range:
+        sub_error_array = error_lines[closest_error_index - range, len(error_lines)]
+    elif closest_error_index < range:
+        sub_error_array = error_lines[0, closest_error_index + range]
+    else:
+        sub_error_array = error_lines[closest_error_index - range, closest_error_index + range]
+    sub_array_low = sub_error_array[0][0]
+    sub_array_high = sub_error_array[len(sub_error_array) - 1][0]
+    return sub_error_array, sub_array_low, sub_array_high
+
 def make_unfiltered(read_path, error_path, write_path):
     # error list save
     error_lines = []
     modified_lines = []
+    sub_error_array = []
+    sub_array_low = -1
+    sub_array_high = -1
     # open error file
     error_file = open(error_path, "r")
     for _, line in enumerate(error_file):
@@ -32,12 +54,18 @@ def make_unfiltered(read_path, error_path, write_path):
             parallel2 = split_txt[8]
             parallel3 = split_txt[9]
             parallel4 = split_txt[10]
-            required_index = [y[0] for y in error_lines].index(location)
-            if base_context[1] == error_lines[required_index][1]:
-                result = "true"
-            else:
+            if not (location >= sub_array_low and location <= sub_array_high):
+                sub_array, sub_array_low, sub_array_high = make_sub_array(error_lines, location)
+            try:
+                required_index = [y[0] for y in sub_array].index(location)
+                if base_context[1] == error_lines[required_index][1]:
+                    result = "true"
+                else:
+                    result = "false"
+            except ValueError:
                 result = "false"
             modified_lines.append("{} {} {} {} {} {} {} {} {} {} {}".format(location, result, base_context, base_1, pac_qual, base_2, total_count, parallel1, parallel2, parallel3, parallel4))
+            print(index)
             if index % 1_000_000 == 0:
                 for write_line in modified_lines:
                     fw.write(write_line)
