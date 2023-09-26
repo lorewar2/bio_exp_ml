@@ -4,6 +4,47 @@ import random
 import numpy as np
 import scipy.special
 
+def make_unfiltered(read_path, error_path, write_path):
+    # error list save
+    error_lines = []
+    modified_lines = []
+    # open error file
+    error_file = open(error_path, "r")
+    for _, line in enumerate(error_file):
+        split_txt = line.split(" ")
+        location = int(split_txt[0])
+        base = split_txt[1][0]
+        error_lines.append((location, base))
+    # open filtered data file
+    read_file = open(read_path, 'r')
+    with open(write_path, 'a') as fw:
+        for index, line in enumerate(read_file):
+            split_txt = line.split(" ")
+            if len(split_txt) != 12:
+                continue
+            location = int(split_txt[0])
+            base_context = split_txt[2]
+            base_1 = split_txt[3]
+            pac_qual = split_txt[4]
+            base_2 = split_txt[5]
+            total_count = split_txt[7]
+            parallel1 = split_txt[8]
+            parallel2 = split_txt[9]
+            parallel3 = split_txt[10]
+            parallel4 = split_txt[11]
+            required_index = [y[0] for y in error_lines].index(location)
+            if base_context[1] == error_lines[required_index][1]:
+                result = "true"
+            else:
+                result = "false"
+            modified_lines.append("{} {} {} {} {} {} {} {} {} {} {}".format(location, result, base_context, base_1, pac_qual, base_2, total_count, parallel1, parallel2, parallel3, parallel4))
+            if index % 1_000_000 == 0:
+                for write_line in modified_lines:
+                    fw.write(write_line)
+                modified_lines.clear()
+                print("indexed {} records".format(index))
+    return
+    
 def print_pacbio_scores(read_path):
     # arrays to save the result
     error_counts = [0] * 93
