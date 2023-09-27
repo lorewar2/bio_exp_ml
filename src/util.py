@@ -60,9 +60,9 @@ def make_unfiltered(read_path, error_path, write_path):
                 sub_array, sub_array_low, sub_array_high = make_sub_array(error_lines, location)
             try:
                 required_index = [y[0] for y in sub_array].index(location)
-                if base_1 == error_lines[required_index][1]:
-                    print(base_1)
-                    print(error_lines[required_index][1])
+                if base_1 == sub_array[required_index][1]:
+                    #if location == 37666995:
+                    #    print("{} {}".format(base_1, sub_array[required_index]))
                     result = "true"
                     if last_error_location != location:
                         last_error_location = location
@@ -142,6 +142,7 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
         if len(split_txt) != 11:
             continue
         result = split_txt[1]
+        base = split_txt[3]
         parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
@@ -151,7 +152,7 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
         parallel_vec_f = []
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
-        recalculated_score = int(calculate_topology_score(split_txt[2][1], parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
+        recalculated_score = int(calculate_topology_score(base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
         all_counts[recalculated_score] += 1
         if result == "true":
             error_counts[recalculated_score] += 1
