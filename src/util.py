@@ -60,7 +60,9 @@ def make_unfiltered(read_path, error_path, write_path):
                 sub_array, sub_array_low, sub_array_high = make_sub_array(error_lines, location)
             try:
                 required_index = [y[0] for y in sub_array].index(location)
-                if base_context[1] == error_lines[required_index][1]:
+                if base_1 == error_lines[required_index][1]:
+                    print(base_1)
+                    print(error_lines[required_index][1])
                     result = "true"
                     if last_error_location != location:
                         last_error_location = location
