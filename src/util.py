@@ -4,6 +4,61 @@ import random
 import numpy as np
 import scipy.special
 
+def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filter_path, write_path):
+    # ALL DATA IN ORDER
+    # read the confident file put relavant chromosone data in array
+    confident_regions = []
+    path = "{}/confident_data.txt".format(filter_path)
+    with open(path, 'r') as cr:
+        for index, line in enumerate(cr):
+            split_txt = line.split(" ")
+            if chromosone == split_txt[0]:
+                start = int(split_txt[1])
+                end = int(split_txt[3])
+                confident_regions.append((start, end))
+    # read germline file put relavant chromosone data in array
+    germline_locations = []
+    path = "{}/germline_data.txt".format(filter_path)
+    with open(path, 'r') as gr:
+        for index, line in enumerate(gr):
+            split_txt = line.split(" ")
+            if chromosone == split_txt[0]:
+                location = int(split_txt[1])
+                count = len(split_txt[2])
+                germline_locations.append((location, count))
+    # read the data file, go line by line
+    modified_lines = []
+    read_file = open(data_path, 'r')
+    confident_index = 0
+    germline_index = 0
+    with open(write_path, 'a') as fw:
+        for index, line in enumerate(read_file):
+            split_txt = line.split(" ")
+            if len(split_txt) != 9:
+                continue
+            current_location = int(split_txt[0])
+            # iterate to correct area of confident region
+            while current_location > confident_regions[confident_index][1]:
+                if confident_index + 1 >= len(confident_regions):
+                    break
+                confident_index += 1
+            # iterate to correct area of germline region
+            while current_location > germline_locations[germline_index][0]:
+                if germline_index + 1 >= len(germline_locations):
+                    break
+                germline_index += 1
+            # check if in confident region if not continue
+            if (current_location < confident_regions[confident_index][0]) or (current_location > confident_regions[confident_index][1]):
+                print("Not confident region {} start: {} end: {} ".format(current_location, confident_regions[confident_index][0], confident_regions[confident_index][1]))
+                continue
+            # check if germline variant
+            if (current_location >= germline_locations[germline_index][0]) and (current_location <= (germline_locations[germline_index][0] + germline_locations[germline_index][1])):
+                print("Germline variant location {} == {} +- {}".format(current_location, germline_locations[germline_index][0]. germline_locations[germline_index][1]))
+                continue
+            # this is run if not filtered
+
+    return
+
 def make_sub_array(error_lines, location):
     range = 100
     sub_error_array = []

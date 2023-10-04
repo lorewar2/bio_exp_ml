@@ -20,9 +20,9 @@ def main():
     #util.index_file("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
     #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr4.txt", 0.85)
     #util.print_pacbio_scores("/data1/hifi_consensus/quality_data/chr1.txt")
-    util.make_unfiltered("/data1/hifi_consensus/quality_data/chr1.txt", "/data1/hifi_consensus/unfiltered_data/chr1_error_data.txt", "/data1/hifi_consensus/unfiltered_data/chr1.txt")
+    util.filter_data_using_confident_germline_indel_depth("chr2", "/data1/hifi_consensus/all_data/chr2.txt", "/data1/hifi_consensus/all_data/filters", "/data1/hifi_consensus/all_data/test.txt")
     #util.old_format_to_new_format_converter("/data1/hifi_consensus/quality_data/chr21.txt", "/data1/hifi_consensus/quality_data/chr21_modified.txt")
-    #util.check_and_clean_data("/data1/hifi_consensus/quality_data/chr2.txt")
+    #util.check_and_clean_data("/data1/hifi_consensus/all_data/chr2.txt")
     #evaluate_model()
     #view_result()
     return
