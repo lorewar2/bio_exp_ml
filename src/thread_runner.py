@@ -41,9 +41,9 @@ def pipeline_calculate_topology_score_with_probability(read_path, start, end, er
             for parallel in parallel_vec_s:
                 parallel_vec_f.append(float(parallel))
             recalculated_score = int(util.calculate_topology_score(call_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
-            all_counts[thread_index][recalculated_score] += 1
+            all_counts[(194 * thread_number) + recalculated_score] += 1
             if ref_base != call_base:
-                error_counts[thread_index][recalculated_score] += 1
+                error_counts[(194 * thread_number) + recalculated_score] += 1
             if (index - start) % 100001 == 0:
                 print("Thread {} Progress {}/{}".format(thread_index, index - start, end - start))
                 break
@@ -51,8 +51,8 @@ def pipeline_calculate_topology_score_with_probability(read_path, start, end, er
     
 # initialize variables
 thread_number = 64
-error_counts = Array(Array('i', range(194)), range(thread_number))
-all_counts = Array(Array('i', range(194)), range(thread_number))
+error_counts = Array('i', range(194 * thread_number))
+all_counts = Array('i', range(194 * thread_number))
 threads = [None] * thread_number
 file_path = "/data1/hifi_consensus/all_data/chr2_filtered.txt"
 # get the length
@@ -79,10 +79,9 @@ for i in range(len(threads)):
 # sum up the result
 all_count_final = [0] * 194
 error_count_final = [0] * 194
-for i in range(len(all_counts)):
-    for j in range(len(all_counts[i])):
-        all_count_final[j] += all_counts[i][j]
-        error_count_final[j] += error_counts[i][j]
-
+for i in range(thread_number):
+    for j in range(194):
+        all_count_final[j] += all_counts[(194 * i) + j]
+        error_count_final[j] += error_counts[(194 * i) + j]
 print (all_count_final)
 print (error_count_final)
