@@ -1,4 +1,4 @@
-from multiprocessing import Process
+from multiprocessing import Process, Value, Array
 import util
 
 def print_pacbio_scores(read_path, start, end, error_counts, all_counts, thread_index):
@@ -51,8 +51,8 @@ def pipeline_calculate_topology_score_with_probability(read_path, start, end, er
     
 # initialize variables
 thread_number = 64
-error_counts = [[0 for i in range(194)] for j in range(thread_number)]
-all_counts = [[0 for i in range(194)] for j in range(thread_number)]
+error_counts = Array(Array(0 for i in range(194)) for j in range(thread_number))
+all_counts = Array(Array(0 for i in range(194)) for j in range(thread_number))
 threads = [None] * thread_number
 file_path = "/data1/hifi_consensus/all_data/chr2_filtered.txt"
 # get the length
