@@ -49,14 +49,19 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
                 germline_index += 1
             # check if in confident region if not continue
             if (current_location < confident_regions[confident_index][0]) or (current_location > confident_regions[confident_index][1]):
-                print("Not confident region {} start: {} end: {} ".format(current_location, confident_regions[confident_index][0], confident_regions[confident_index][1]))
+                #print("Not confident region {} start: {} end: {} ".format(current_location, confident_regions[confident_index][0], confident_regions[confident_index][1]))
                 continue
             # check if germline variant
             if (current_location >= germline_locations[germline_index][0]) and (current_location <= (germline_locations[germline_index][0] + germline_locations[germline_index][1])):
-                print("Germline variant location {} == {} +- {}".format(current_location, germline_locations[germline_index][0]. germline_locations[germline_index][1]))
+                #print("Germline variant location {} == {} +- {}".format(current_location, germline_locations[germline_index][0], germline_locations[germline_index][1]))
                 continue
             # this is run if not filtered
-
+            modified_lines.append(line)
+            if index % 1_000_000 == 0:
+                for write_line in modified_lines:
+                    fw.write(write_line)
+                modified_lines.clear()
+                print("processed {} records, {}/{}".format(index, germline_index, len(germline_locations)))
     return
 
 def make_sub_array(error_lines, location):
