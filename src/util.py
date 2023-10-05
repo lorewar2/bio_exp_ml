@@ -56,7 +56,23 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
                 #print("Germline variant location {} == {} +- {}".format(current_location, germline_locations[germline_index][0], germline_locations[germline_index][1]))
                 continue
             # this is run if not filtered
-            modified_lines.append(line)
+            location = split_txt[0].zfill(9)
+            three_base = split_txt[1]
+            quality = split_txt[2].zfill(2)
+            base = split_txt[3]
+            count = split_txt[4].zfill(2)
+            # get the parallel bases
+            parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
+            char_remov = ["]", "[", ",", "\n"]
+            for char in char_remov:
+                for index_s in range(len(parallel_vec_s)):
+                    temp = parallel_vec_s[index_s].replace(char, "")
+                    parallel_vec_s[index_s] = temp
+            parallel_vec_mod = []
+            for parallel in parallel_vec_s:
+                parallel_vec_mod.append(parallel.zfill(2))
+            modified_line = "{} {} {} {} {} [{} {} {} {}]".format(location, three_base, quality, base, count, parallel_vec_mod[0], parallel_vec_mod[1], parallel_vec_mod[2], parallel_vec_mod[3])
+            modified_lines.append(modified_line)
             if index % 1_000_000 == 0:
                 for write_line in modified_lines:
                     fw.write(write_line)
