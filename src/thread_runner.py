@@ -12,9 +12,9 @@ def print_pacbio_scores(read_path, start, end, error_counts, all_counts, thread_
             base_quality = int(split_txt[2])
             ref_base = split_txt[1][1]
             call_base = split_txt[3]
-            all_counts[thread_index][base_quality] += 1
+            all_counts[(194 * thread_index) + base_quality] += 1
             if ref_base != call_base:
-                error_counts[thread_index][base_quality] += 1
+                error_counts[(194 * thread_index) + base_quality] += 1
             if (index - start) % 100001 == 0:
                 print("Thread {} Progress {}/{}".format(thread_index, index - start, end - start))
     return
