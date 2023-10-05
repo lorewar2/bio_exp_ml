@@ -4,6 +4,29 @@ import random
 import numpy as np
 import scipy.special
 
+def print_pacbio_scores(read_path):
+    # arrays to save the result
+    error_counts = [0] * 94
+    all_counts = [0] * 94
+    file = open(read_path, "r")
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        if len(split_txt) != 9:
+            continue
+        base_quality = int(split_txt[2])
+        ref_base = split_txt[1][1]
+        call_base = split_txt[3]
+        all_counts[base_quality] += 1
+        if ref_base != call_base:
+            error_counts[base_quality] += 1
+        if index % 100000 == 0:
+            print("Running line {}".format(index))
+            break
+    print(error_counts)
+    print(all_counts)
+    print(read_path)
+    return
+
 def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filter_path, write_path):
     # ALL DATA IN ORDER
     # read the confident file put relavant chromosone data in array
@@ -153,27 +176,6 @@ def make_unfiltered(read_path, error_path, write_path):
                     fw.write(write_line)
                 modified_lines.clear()
                 print("processed {} records, errors {}/{}".format(index, error_count, len(error_lines)))
-    return
-
-def print_pacbio_scores(read_path):
-    # arrays to save the result
-    error_counts = [0] * 93
-    all_counts = [0] * 93
-    file = open(read_path, "r")
-    for index, line in enumerate(file):
-        split_txt = line.split(" ")
-        if len(split_txt) != 11:
-            continue
-        result = split_txt[1]
-        position = int(split_txt[4])
-        all_counts[position] += 1
-        if result == "true":
-            error_counts[position] += 1
-        if index % 100000 == 0:
-            print("Running line {}".format(index))
-    print(error_counts)
-    print(all_counts)
-    print(read_path)
     return
 
 def old_format_to_new_format_converter(read_path, write_path):
