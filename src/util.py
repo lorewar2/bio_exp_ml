@@ -187,20 +187,18 @@ def old_format_to_new_format_converter(read_path, write_path):
     with open(write_path, 'a') as fw:
         for index, line in enumerate(file):
             split_txt = line.split(" ")
-            if len(split_txt) != 12:
+            if len(split_txt) != 10:
                 continue
             location = split_txt[0]
-            result = split_txt[1]
-            base_context = split_txt[2]
+            base_context = split_txt[1]
+            pac_qual = split_txt[2]
             base_1 = split_txt[3]
-            pac_qual = split_txt[4]
-            base_2 = split_txt[5]
-            total_count = split_txt[7]
-            parallel1 = split_txt[8]
-            parallel2 = split_txt[9]
-            parallel3 = split_txt[10]
-            parallel4 = split_txt[11]
-            modified_lines.append("{} {} {} {} {} {} {} {} {} {} {}".format(location, result, base_context, base_1, pac_qual, base_2, total_count, parallel1, parallel2, parallel3, parallel4))
+            total_count = split_txt[5]
+            parallel1 = split_txt[6]
+            parallel2 = split_txt[7]
+            parallel3 = split_txt[8]
+            parallel4 = split_txt[9]
+            modified_lines.append("{} {} {} {} {} {} {} {} {}".format(location, base_context, pac_qual, base_1, total_count, parallel1, parallel2, parallel3, parallel4))
             if index % 1_000_000 == 0:
                 for write_line in modified_lines:
                     fw.write(write_line)
