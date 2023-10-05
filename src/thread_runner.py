@@ -51,8 +51,8 @@ def pipeline_calculate_topology_score_with_probability(read_path, start, end, er
     
 # initialize variables
 thread_number = 64
-error_counts = Array(Array(0 for i in range(194)) for j in range(thread_number))
-all_counts = Array(Array(0 for i in range(194)) for j in range(thread_number))
+error_counts = Array(Array('i', range(194)), range(thread_number))
+all_counts = Array(Array('i', range(194)), range(thread_number))
 threads = [None] * thread_number
 file_path = "/data1/hifi_consensus/all_data/chr2_filtered.txt"
 # get the length
