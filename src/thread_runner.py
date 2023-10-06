@@ -68,7 +68,8 @@ for thread_index in range(len(threads)):
     thread_start = int(one_thread_allocation * thread_index)
     thread_end = int(thread_start + one_thread_allocation)
     # run the thread
-    threads[thread_index] = Process(target=pipeline_calculate_topology_score_with_probability, args=(file_path, thread_start, thread_end, error_counts, all_counts, 0.85, thread_index))
+    threads[thread_index] = Process(target=print_pacbio_scores, args=(file_path, thread_start, thread_end, error_counts, all_counts, thread_index))
+    #threads[thread_index] = Process(target=pipeline_calculate_topology_score_with_probability, args=(file_path, thread_start, thread_end, error_counts, all_counts, 0.85, thread_index))
     #threads[thread_index] = Thread(target=pipeline_calculate_topology_score_with_probability, args=(file_path, thread_start, thread_end, error_counts, all_counts, 0.85, thread_index))
     threads[thread_index].start()
 

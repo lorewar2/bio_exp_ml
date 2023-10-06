@@ -49,11 +49,31 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
                 location = int(split_txt[1])
                 count = len(split_txt[2])
                 germline_locations.append((location, count))
+    # read indel file put relavant chromosone data in array
+    indel_locations = []
+    path = "{}/chr2_indel_data.txt".format(filter_path)
+    with open(path, 'r') as ir:
+        for index, line in enumerate(ir):
+            split_txt = line.split(" ")
+            if chromosone == split_txt[0]:
+                location = int(split_txt[1])
+                indel_locations.append(location)
+    # read indel file put relavant chromosone data in array
+    depth_locations = []
+    path = "{}/chr2_depth_data.txt".format(filter_path)
+    with open(path, 'r') as dr:
+        for index, line in enumerate(dr):
+            split_txt = line.split(" ")
+            if chromosone == split_txt[0]:
+                location = int(split_txt[1])
+                depth_locations.append(location)
     # read the data file, go line by line
     modified_lines = []
     read_file = open(data_path, 'r')
     confident_index = 0
     germline_index = 0
+    indel_index = 0
+    depth_index = 0
     with open(write_path, 'a') as fw:
         for index, line in enumerate(read_file):
             split_txt = line.split(" ")
@@ -70,6 +90,16 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
                 if germline_index + 1 >= len(germline_locations):
                     break
                 germline_index += 1
+            # iterate to correct area of indel region
+            while current_location > indel_locations[indel_index]:
+                if indel_index + 1 >= len(germline_locations):
+                    break
+                indel_index += 1
+            # iterate to correct area of depth region
+            while current_location > depth_locations[depth_index]:
+                if indel_index + 1 >= len(depth_locations):
+                    break
+                depth_index += 1
             # check if in confident region if not continue
             if (current_location < confident_regions[confident_index][0]) or (current_location > confident_regions[confident_index][1]):
                 #print("Not confident region {} start: {} end: {} ".format(current_location, confident_regions[confident_index][0], confident_regions[confident_index][1]))
@@ -77,6 +107,9 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
             # check if germline variant
             if (current_location >= germline_locations[germline_index][0]) and (current_location <= (germline_locations[germline_index][0] + germline_locations[germline_index][1])):
                 #print("Germline variant location {} == {} +- {}".format(current_location, germline_locations[germline_index][0], germline_locations[germline_index][1]))
+                continue
+            # check if indel or depth location
+            if current_location == indel_locations[indel_index] or current_location == depth_locations[depth_index]:
                 continue
             # this is run if not filtered
             location = split_txt[0].zfill(9)
