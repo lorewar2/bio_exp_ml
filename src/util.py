@@ -4,6 +4,24 @@ import random
 import numpy as np
 import scipy.special
 
+
+def go_through_and_get_high_qual_errors(read_path):
+    file = open(read_path, "r")
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        if len(split_txt) != 9:
+            continue
+        base_quality = int(split_txt[2])
+        ref_base = split_txt[1][1]
+        call_base = split_txt[3]
+        if ref_base != call_base and base_quality >= 93:
+            if random.choice(False, False, False, False, True):
+                print(line)
+        if index % 100000 == 0:
+            print("Running line {}".format(index))
+            break
+    return
+
 def print_pacbio_scores(read_path):
     # arrays to save the result
     error_counts = [0] * 94
