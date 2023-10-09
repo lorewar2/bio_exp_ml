@@ -145,7 +145,7 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
             parallel_vec_mod = []
             for parallel in parallel_vec_s:
                 parallel_vec_mod.append(parallel.zfill(2))
-            modified_line = "{} {} {} {} {} [{} {} {} {}]".format(location, three_base, quality, base, count, parallel_vec_mod[0], parallel_vec_mod[1], parallel_vec_mod[2], parallel_vec_mod[3])
+            modified_line = "{} {} {} {} {} [{} {} {} {}]\n".format(location, three_base, quality, base, count, parallel_vec_mod[0], parallel_vec_mod[1], parallel_vec_mod[2], parallel_vec_mod[3])
             modified_lines.append(modified_line)
             if index % 1_000_000 == 0:
                 for write_line in modified_lines:
