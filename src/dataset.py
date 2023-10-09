@@ -2,15 +2,14 @@ import torch
 import os
 
 class QualityDataset(torch.utils.data.Dataset):
-    def __init__(self, file_loc, index_loc, load_all):
+    def __init__(self, file_loc, load_all):
         self.file_loc = file_loc
-        self.index_loc = index_loc
         self.load_all = load_all
         # get len and save it
-        with open(self.index_loc) as f:
+        with open(file_loc) as f:
             f.seek(0, 2)
             offset = f.tell()
-            self.len = int((offset - 22) / 22)
+            self.len = int((offset - 36) / 36) - 1
         # load all data
         if load_all:
             self.label_tensor = torch.empty((self.len, 1), dtype = torch.float32)
@@ -35,28 +34,19 @@ class QualityDataset(torch.utils.data.Dataset):
         # search the index file to file the location # index offset is 22
         location = 0
         retrieved_line = ""
-        with open(self.index_loc) as f1:
-            f1.seek(index * 22)
-            line = f1.readline()
-            location = int(line.strip())
-        with open(self.file_loc) as f2:
-            f2.seek(location)
-            retrieved_line = f2.readline()
-            #print(retrieved_line)
-        # process the retrieved line
-        #print(retrieved_line)
-        #print(location)
+        with open(self.file_loc) as f1:
+            f1.seek(index * 36)
+            retrieved_line = f1.readline()
         split_txt = retrieved_line.split(" ")
         # case of corrupted data $dont use this$ 
-        if len(split_txt) != 11:
+        if len(split_txt) != 9:
             return torch.zeros(1, 69), torch.tensor([[0.00]])
         # get three base context in one hot encoded
-        #encoded_bases = self.one_hot_encoding_bases(split_txt[1][0]) + self.one_hot_encoding_bases(split_txt[1][1]) + self.one_hot_encoding_bases(split_txt[1][2])
-        encoded_bases = self.one_hot_encoding_64bit(split_txt[2][0], split_txt[2][1], split_txt[2][2])
+        encoded_bases = self.one_hot_encoding_64bit(split_txt[1][0], split_txt[3], split_txt[1][2])
         # get quality in float
-        quality = float(split_txt[4]) / 100
+        quality = float(split_txt[2]) / 100
         # get the num of parallel bases in float
-        parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
+        parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
             for index_s in range(len(parallel_vec_s)):
@@ -66,16 +56,15 @@ class QualityDataset(torch.utils.data.Dataset):
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
         # rearrange so that the calling base num first and rest in decending order
-        sorted_vec = self.rearrange_sort_parallel_bases(parallel_vec_f, split_txt[2][1])
+        sorted_vec = self.rearrange_sort_parallel_bases(parallel_vec_f, split_txt[3])
         # make and append to the input tensor,
         input_tensor = torch.tensor([encoded_bases + [quality] + sorted_vec])
         # append to result tensor,
-        result = split_txt[1]
-        if result == "false":
-            label_tensor = torch.tensor([[1.0]])
+        if split_txt[3] == split_txt[1][1]:
+            label_tensor = torch.tensor([[0.00]])
             # continue if we want errors and its not a error
         else:
-            label_tensor = torch.tensor([[0.00]])
+            label_tensor = torch.tensor([[1.00]])
         return input_tensor, label_tensor
 
     def rearrange_sort_parallel_bases(self, parallel_vec, base):

@@ -15,7 +15,7 @@ def use_himut_file_to_identify_errors(chromosone, data_path, filter_path, write_
             if chromosone == split_txt[0]:
                 location = int(split_txt[1])
                 ref = split_txt[2]
-                alt = split_txt[4]
+                alt = split_txt[4].strip()
                 error_locations.append((location, ref, alt))
     # read the data file, go line by line
     modified_lines = []
