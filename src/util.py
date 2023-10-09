@@ -4,6 +4,54 @@ import random
 import numpy as np
 import scipy.special
 
+def use_himut_file_to_identify_errors(chromosone, data_path, filter_path, write_path):
+    # ALL DATA IN ORDER
+    # read the himut file put relavant chromosone data in array
+    error_locations = []
+    path = "{}/himut_data.txt".format(filter_path)
+    with open(path, 'r') as hr:
+        for index, line in enumerate(hr):
+            split_txt = line.split(" ")
+            if chromosone == split_txt[0]:
+                location = int(split_txt[1])
+                ref = split_txt[2]
+                alt = split_txt[4]
+                error_locations.append((location, ref, alt))
+    # read the data file, go line by line
+    modified_lines = []
+    read_file = open(data_path, 'r')
+    himut_index = 0
+    with open(write_path, 'a') as fw:
+        for index, line in enumerate(read_file):
+            split_txt = line.split(" ")
+            if len(split_txt) != 9:
+                continue
+            current_location = int(split_txt[0])
+            # iterate to correct area of confident region
+            while current_location > error_locations[himut_index][0]:
+                if himut_index + 1 >= len(error_locations):
+                    break
+                himut_index += 1
+            if current_location != error_locations[himut_index][0]:
+                # check if error, if error do not append
+                ref_base = split_txt[1][1]
+                calling_base = split_txt[3]
+                if ref_base == calling_base:
+                    modified_lines.append(line)
+            else:
+                # check if correct error, if not ignore
+                ref_base = split_txt[1][1]
+                calling_base = split_txt[3]
+                if ref_base == error_locations[himut_index][1] and calling_base == error_locations[himut_index][2]:
+                    modified_lines.append(line)
+                elif ref_base == error_locations[himut_index][1] and calling_base == error_locations[himut_index][1]:
+                    modified_lines.append(line)
+            if index % 1_000_000 == 0:
+                for write_line in modified_lines:
+                    fw.write(write_line)
+                modified_lines.clear()
+                print("processed {} records, {}/{}".format(index, himut_index, len(error_locations)))
+    return
 
 def go_through_and_get_high_qual_errors(read_path):
     file = open(read_path, "r")

@@ -22,6 +22,7 @@ def main():
     #util.print_pacbio_scores("/data1/hifi_consensus/all_data/chr1.txt")
     #util.old_format_to_new_format_converter("/data1/hifi_consensus/all_data/chr1_old.txt", "/data1/hifi_consensus/all_data/chr1.txt")
     util.filter_data_using_confident_germline_indel_depth("chr2", "/data1/hifi_consensus/all_data/chr2.txt", "/data1/hifi_consensus/all_data/filters", "/data1/hifi_consensus/all_data/chr2_filtered_indel.txt")
+    util.use_himut_file_to_identify_errors("chr2", "/data1/hifi_consensus/all_data/chr2_filtered.txt", "/data1/hifi_consensus/all_data/filters", "/data1/hifi_consensus/all_data/chr2_himut.txt")
     #util.old_format_to_new_format_converter("/data1/hifi_consensus/quality_data/chr21.txt", "/data1/hifi_consensus/quality_data/chr21_modified.txt")
     #util.check_and_clean_data("/data1/hifi_consensus/all_data/chr2.txt")
     #evaluate_model()
