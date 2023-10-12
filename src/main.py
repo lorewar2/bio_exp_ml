@@ -41,7 +41,7 @@ def view_result():
         dataset = eval_dataset,
         batch_size = batch_size,
         num_workers = 4,
-        shuffle = True,
+        shuffle = False,
         drop_last = True
     )
     eval_len = len(eval_loader)
@@ -87,7 +87,7 @@ def print_result_tensor(obtained_tensor):
     parallel_nodes = obtained_tensor[65:69]
     error_rate = obtained_tensor[70].item()
     calc_qual = int(-10 * math.log(error_rate, 10))
-    print("three_base_context {} parallel_nodes {} pacbio_qual {} correct_rate {} calculated_qual {} ".format(three_base_context, parallel_nodes, pacbio_qual, correct_rate, calc_qual))
+    print("three_base_context {} parallel_nodes {} pacbio_qual {} error_rate {} calculated_qual {} ".format(three_base_context, parallel_nodes, pacbio_qual, error_rate, calc_qual))
     return
 
 # this function will evalute the model and aggregate the results (output of the model for wrong and right)
