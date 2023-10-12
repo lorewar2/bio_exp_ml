@@ -4,6 +4,36 @@ import random
 import numpy as np
 import scipy.special
 
+def pipeline_calculate_topology_score_with_probability(read_path, prob):
+    # arrays to save the result
+    error_counts = [0] * 300
+    all_counts = [0] * 300
+    file = open(read_path, "r")
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        if len(split_txt) != 9:
+            continue
+        calling_base = split_txt[3]
+        ref_base = split_txt[1][1]
+        parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
+        char_remov = ["]", "[", ",", "\n"]
+        for char in char_remov:
+            for index_s in range(len(parallel_vec_s)):
+                temp = parallel_vec_s[index_s].replace(char, "")
+                parallel_vec_s[index_s] = temp
+        parallel_vec_f = []
+        for parallel in parallel_vec_s:
+            parallel_vec_f.append(float(parallel))
+        recalculated_score = int(calculate_topology_score(calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
+        all_counts[recalculated_score] += 1
+        if ref_base != calling_base:
+            error_counts[recalculated_score] += 1
+        if index % 100000 == 0:
+            print("Running line {}".format(index))
+    print(error_counts)
+    print(all_counts)
+    return
+
 def write_errors_to_file(read_path, write_path):
     # arrays to save the result
     total_error_count = 0
@@ -331,36 +361,6 @@ def old_format_to_new_format_converter(read_path, write_path):
                     fw.write(write_line)
                 modified_lines.clear()
                 print("indexed {} records".format(index))
-    return
-
-def pipeline_calculate_topology_score_with_probability(read_path, prob):
-    # arrays to save the result
-    error_counts = [0] * 300
-    all_counts = [0] * 300
-    file = open(read_path, "r")
-    for index, line in enumerate(file):
-        split_txt = line.split(" ")
-        if len(split_txt) != 11:
-            continue
-        result = split_txt[1]
-        base = split_txt[3]
-        parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
-        char_remov = ["]", "[", ",", "\n"]
-        for char in char_remov:
-            for index_s in range(len(parallel_vec_s)):
-                temp = parallel_vec_s[index_s].replace(char, "")
-                parallel_vec_s[index_s] = temp
-        parallel_vec_f = []
-        for parallel in parallel_vec_s:
-            parallel_vec_f.append(float(parallel))
-        recalculated_score = int(calculate_topology_score(base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
-        all_counts[recalculated_score] += 1
-        if result == "true":
-            error_counts[recalculated_score] += 1
-        if index % 100000 == 0:
-            print("Running line {}".format(index))
-    print(error_counts)
-    print(all_counts)
     return
 
 def check_and_clean_data (path):
