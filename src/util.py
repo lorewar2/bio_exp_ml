@@ -34,6 +34,31 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
     print(all_counts)
     return
 
+def remove_errors_from_file(read_path, write_path):
+    # arrays to save the result
+    total_error_count = 0
+    file = open(read_path, "r")
+    modified_lines = []
+    with open(write_path, 'a') as fw:
+        for index, line in enumerate(file):
+            split_txt = line.split(" ")
+            if len(split_txt) != 9:
+                continue
+            ref_base = split_txt[1][1]
+            call_base = split_txt[3]
+            if ref_base == call_base:
+                total_error_count += 1
+                modified_lines.append(line)
+            if index % 100000 == 0:
+                for write_line in modified_lines:
+                    fw.write(write_line)
+                modified_lines.clear()
+                print("processed {} records, {}".format(index, total_error_count))
+        for write_line in modified_lines:
+            fw.write(write_line)
+    print(read_path)
+    return
+
 def write_errors_to_file(read_path, write_path):
     # arrays to save the result
     total_error_count = 0
