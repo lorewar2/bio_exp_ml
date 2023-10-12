@@ -34,6 +34,32 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
     print(all_counts)
     return
 
+def add_corrected_errors_to_file(read_path, write_path):
+    file = open(read_path, "r")
+    with open(write_path, 'a') as fw:
+        for index, line in enumerate(file):
+            split_txt = line.split(" ")
+            if len(split_txt) != 9:
+                continue
+            location = split_txt[0].zfill(9)
+            three_base = split_txt[1]
+            quality = split_txt[2].zfill(2)
+            base = split_txt[3]
+            count = split_txt[4].zfill(2)
+            # get the parallel bases
+            parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
+            char_remov = ["]", "[", ",", "\n"]
+            for char in char_remov:
+                for index_s in range(len(parallel_vec_s)):
+                    temp = parallel_vec_s[index_s].replace(char, "")
+                    parallel_vec_s[index_s] = temp
+            parallel_vec_mod = []
+            for parallel in parallel_vec_s:
+                parallel_vec_mod.append(parallel.zfill(2))
+            modified_line = "{} {} {} {} {} [{} {} {} {}]\n".format(location, three_base, quality, base, count, parallel_vec_mod[0], parallel_vec_mod[1], parallel_vec_mod[2], parallel_vec_mod[3])
+            fw.write(modified_line)
+
+
 def remove_errors_from_file(read_path, write_path):
     # arrays to save the result
     total_error_count = 0
