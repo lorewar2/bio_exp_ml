@@ -1,5 +1,6 @@
 import torch
 import os
+import numpy as np
 
 class QualityDataset(torch.utils.data.Dataset):
     def __init__(self, file_loc, load_all):
@@ -10,6 +11,11 @@ class QualityDataset(torch.utils.data.Dataset):
             f.seek(0, 2)
             offset = f.tell()
             self.len = int((offset - 36) / 36) - 1
+        print("shuffling the index array")
+        # make a shuffled index
+        self.index_array = np.arange(0, self.len)
+        np.random.shuffle(self.index_array)
+        print("initializing complete")
         # load all data
         if load_all:
             self.label_tensor = torch.empty((self.len, 1), dtype = torch.float32)
@@ -27,7 +33,7 @@ class QualityDataset(torch.utils.data.Dataset):
             input_tensor = self.input_tensor[index]
             label_tensor = self.label_tensor[index]
         else:
-            input_tensor, label_tensor = self.retrieve_item_from_disk(index)
+            input_tensor, label_tensor = self.retrieve_item_from_disk(self.index_array[index])
         return input_tensor, label_tensor
 
     def retrieve_item_from_disk(self, index):

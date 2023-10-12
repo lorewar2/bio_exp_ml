@@ -8,26 +8,15 @@ import random
 import math
 import util
 
-DATA_PATH = "/data1/hifi_consensus/quality_data/chr2.txt"
-INDEX_PATH = "/data1/hifi_consensus/quality_data/chr2.idx"
+DATA_PATH = "/data1/hifi_consensus/quality_data/chr2_errors_removed.txt"
 MODEL_PATH = "./result/model/2_layered_model.pt"
 
 def main():
     # set the seed
     torch.manual_seed(0)
     random.seed(2)
-    #train_model()
-    #util.index_file("/data1/hifi_consensus/quality_data/chr1+21.txt", "/data1/hifi_consensus/quality_data/chr1+21.idx")
-    #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/quality_data/chr4.txt", 0.85)
-    #util.print_pacbio_scores("/data1/hifi_consensus/all_data/chr1.txt")
-    #util.write_errors_to_file("/data1/hifi_consensus/all_data/chr2_filtered.txt", "/data1/hifi_consensus/all_data/chr2_errors.txt")
-    util.add_corrected_errors_to_file("/data1/hifi_consensus/all_data/chr2_corrected_errors.txt", "/data1/hifi_consensus/all_data/chr2_errors_removed.txt")
-    #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/all_data/chr2_corrected_errors.txt", 0.85)
-    #util.old_format_to_new_format_converter("/data1/hifi_consensus/all_data/chr1_old.txt", "/data1/hifi_consensus/all_data/chr1.txt")
-    #util.filter_data_using_confident_germline_indel_depth("chr2", "/data1/hifi_consensus/all_data/chr2.txt", "/data1/hifi_consensus/all_data/filters", "/data1/hifi_consensus/all_data/chr2_filtered_indel.txt")
-    #util.use_himut_file_to_identify_errors("chr2", "/data1/hifi_consensus/all_data/chr2_filtered.txt", "/data1/hifi_consensus/all_data/filters", "/data1/hifi_consensus/all_data/chr2_himut.txt")
-    #util.old_format_to_new_format_converter("/data1/hifi_consensus/quality_data/chr21.txt", "/data1/hifi_consensus/quality_data/chr21_modified.txt")
-    #util.check_and_clean_data("/data1/hifi_consensus/all_data/chr2.txt")
+    np.random.seed(0)
+    train_model()
     #evaluate_model()
     #view_result()
     return
@@ -47,7 +36,7 @@ def view_result():
     correct_tensor = torch.empty((required_number, 71), dtype = torch.float32)
     error_tensor_len = 0
     error_tensor = torch.empty((required_number, 71), dtype = torch.float32)
-    eval_dataset = QualityDataset (DATA_PATH, INDEX_PATH, False)
+    eval_dataset = QualityDataset (DATA_PATH, False)
     eval_loader = DataLoader (
         dataset = eval_dataset,
         batch_size = batch_size,
@@ -108,7 +97,7 @@ def evaluate_model():
     all_counts = [0] * 93
     batch_size = 1024
     # get the data to test
-    eval_dataset = QualityDataset (DATA_PATH, INDEX_PATH, False)
+    eval_dataset = QualityDataset (DATA_PATH, False)
     eval_loader = DataLoader (
         dataset = eval_dataset,
         batch_size = batch_size,
@@ -145,12 +134,12 @@ def train_model():
     epochs = 10
     batch_size = 1024
     # data loading
-    train_dataset = QualityDataset (DATA_PATH, INDEX_PATH, False)
+    train_dataset = QualityDataset (DATA_PATH, False)
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
-        num_workers = 32,
-        shuffle = True,
+        num_workers = 1,
+        shuffle = False,
         drop_last = True
     )
     # build the model object
@@ -175,7 +164,7 @@ def train_model():
     optimizer = torch.optim.SGD(lr_model.parameters(), lr=learningRate)
     criterion = torch.nn.MSELoss()
 
-    # torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, PATH)
+    torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, MODEL_PATH)
     # # load the previous saved trained model
     checkpoint = torch.load(MODEL_PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
