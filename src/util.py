@@ -4,6 +4,46 @@ import random
 import numpy as np
 import scipy.special
 
+def identify_error_threebase_context(data_path):
+    three_base_context_error_vec = [0] * 256
+    with open(data_path, 'r') as hr:
+        for index, line in enumerate(hr):
+            split_txt = line.split(" ")
+            if len(split_txt) != 9:
+                continue
+            ref_base_1 = split_txt[1][0]
+            ref_base_2 = split_txt[1][1]
+            ref_base_3 = split_txt[1][2]
+            call_base = split_txt[3]
+            if ref_base_2 != call_base:
+                print("before conversion {} {} {}".format(ref_base_1, call_base, ref_base_3))
+                converted_number = convert_3_bases_to_64_bit(ref_base_1, call_base, ref_base_3)
+                print("converted number {}".format(converted_number))
+                converted_base_1, converted_base_2, converted_base_3 = convert_64_bit_to_3_bases(converted_number)
+                print("after conversion {} {} {}".format(converted_base_1, converted_base_2, converted_base_3))
+                three_base_context_error_vec[converted_number] += 1
+    print(three_base_context_error_vec)
+    return
+
+def convert_3_bases_to_64_bit(ref_base_1, call_base, ref_base_3):
+    ref_int_1 = get_base_to_int(ref_base_1)
+    call_int = get_base_to_int(call_base)
+    ref_int_3 = get_base_to_int(ref_base_3)
+    converted_number = (ref_int_1 + call_int * 4 + ref_int_3 * 16)
+    return converted_number
+
+def convert_64_bit_to_3_bases(converted_number):
+    current_number = converted_number
+    ref_int_1 = current_number % 4
+    current_number = current_number / 4
+    call_int = current_number % 4
+    current_number = current_number / 4
+    ref_int_3 = current_number % 4 
+    ref_base_1 = get_int_to_base(ref_int_1)
+    call_base = get_int_to_base(call_int)
+    ref_base_3 = get_int_to_base(ref_int_3)
+    return  (ref_base_1, call_base, ref_base_3)
+    
 def pipeline_calculate_topology_score_with_probability(read_path, prob):
     # arrays to save the result
     error_counts = [0] * 300
