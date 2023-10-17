@@ -4,8 +4,8 @@ import random
 import numpy as np
 import scipy.special
 
-def identify_error_threebase_context(data_path):
-    three_base_context_error_vec = [0] * 256
+def identify_error_threebase_context(data_path, write_path):
+    three_base_context_error_vec = [0] * 64
     with open(data_path, 'r') as hr:
         for index, line in enumerate(hr):
             split_txt = line.split(" ")
@@ -23,6 +23,9 @@ def identify_error_threebase_context(data_path):
                 print("after conversion {} {} {}".format(converted_base_1, converted_base_2, converted_base_3))
                 three_base_context_error_vec[converted_number] += 1
     print(three_base_context_error_vec)
+    with open(write_path, 'a') as fw:
+        for entry in three_base_context_error_vec:
+            fw.write(entry)
     return
 
 def convert_3_bases_to_64_bit(ref_base_1, call_base, ref_base_3):

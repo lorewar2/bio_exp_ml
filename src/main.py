@@ -17,7 +17,7 @@ def main():
     random.seed(2)
     np.random.seed(0)
     #train_model()
-    util.identify_error_threebase_context("/data1/hifi_consensus/all_data/chr2_corrected_errors.txt")
+    util.identify_error_threebase_context("/data1/hifi_consensus/all_data/chr2_corrected_errors.txt", "/data1/hifi_consensus/all_data/chr2_prob.txt")
     #evaluate_model()
     #view_result()
     return
