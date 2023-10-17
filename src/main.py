@@ -8,7 +8,7 @@ import random
 import math
 import util
 
-DATA_PATH = "/data1/hifi_consensus/quality_data/chr2_errors_removed.txt"
+DATA_PATH = "/data1/hifi_consensus/all_data/chr2_errors_removed.txt"
 MODEL_PATH = "./result/model/2_layered_model.pt"
 
 def main():
@@ -16,7 +16,8 @@ def main():
     torch.manual_seed(0)
     random.seed(2)
     np.random.seed(0)
-    train_model()
+    #train_model()
+    util.identify_error_threebase_context("/data1/hifi_consensus/all_data/chr2_corrected_errors.txt")
     #evaluate_model()
     #view_result()
     return
