@@ -4,6 +4,58 @@ import random
 import numpy as np
 import scipy.special
 
+PROB_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob.txt"
+
+def calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
+    # calculate the slope and intercept
+    min_mutations = 2_000.0
+    max_mutations = 25_000.0
+    min_prob = 0.95
+    max_prob = 0.75
+    slope = (max_prob - min_prob) / (max_mutations - min_mutations)
+    intercept = max_prob - (slope * max_mutations)
+    # get number of mutations from file
+    converted_number = convert_3_bases_to_64_bit(ref_base_1, calling_base, ref_base_3)
+    mutations = 10_000
+    with open(PROB_FILE_PATH, 'r') as hr:
+        for index, line in enumerate(hr):
+            if index == converted_number:
+                mutations = int(line.strip())
+    
+    prob = (slope * mutations) + intercept
+    print("mutations for {}{}{} = {} == {}".format(ref_base_1, calling_base, ref_base_3, mutations, prob))
+    # read the file
+    ln_prob_base_A = np.log(0.25)
+    ln_prob_base_C = np.log(0.25)
+    ln_prob_base_G = np.log(0.25)
+    ln_prob_base_T = np.log(0.25)
+    
+    ln_prob_data_given_A = np.log(calculate_binomial(num_of_reads, base_A_count, prob))
+    ln_prob_data_given_C = np.log(calculate_binomial(num_of_reads, base_C_count, prob))
+    ln_prob_data_given_G = np.log(calculate_binomial(num_of_reads, base_G_count, prob))
+    ln_prob_data_given_T = np.log(calculate_binomial(num_of_reads, base_T_count, prob))
+
+    ln_sum_of_probabilities = ln_prob_data_given_A + ln_prob_base_A
+    ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_C + ln_prob_base_C)
+    ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_G + ln_prob_base_G)
+    ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_T + ln_prob_base_T)
+
+    if calling_base == "A":
+        correct_rate = np.exp(ln_prob_data_given_A + ln_prob_base_A - ln_sum_of_probabilities)
+    elif calling_base == "C":
+        correct_rate = np.exp(ln_prob_data_given_C + ln_prob_base_C - ln_sum_of_probabilities)
+    elif calling_base == "G":
+        correct_rate = np.exp(ln_prob_data_given_G + ln_prob_base_G - ln_sum_of_probabilities)
+    elif calling_base == "T":
+        correct_rate = np.exp(ln_prob_data_given_T + ln_prob_base_T - ln_sum_of_probabilities)
+    else:
+        correct_rate = np.exp(ln_prob_data_given_A + ln_prob_base_A - ln_sum_of_probabilities)
+
+    error_rate = 1.0 - correct_rate
+    quality_score = (-10.00) * np.log10(error_rate + 0.000000000000000000001)
+    #print(quality_score)
+    return quality_score
+
 def identify_error_threebase_context(data_path, write_path):
     three_base_context_error_vec = [0] * 64
     with open(data_path, 'r') as hr:
@@ -25,7 +77,7 @@ def identify_error_threebase_context(data_path, write_path):
     print(three_base_context_error_vec)
     with open(write_path, 'a') as fw:
         for entry in three_base_context_error_vec:
-            fw.write(entry)
+            fw.write(str(entry) + "\n")
     return
 
 def convert_3_bases_to_64_bit(ref_base_1, call_base, ref_base_3):
@@ -83,7 +135,9 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
         if len(split_txt) != 9:
             continue
         calling_base = split_txt[3]
-        ref_base = split_txt[1][1]
+        ref_base_1 = split_txt[1][0]
+        ref_base_2 = split_txt[1][1]
+        ref_base_3 = split_txt[1][2]
         parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
@@ -93,9 +147,10 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
         parallel_vec_f = []
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
-        recalculated_score = int(calculate_topology_score(calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
+        #recalculated_score = int(calculate_topology_score(calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
+        recalculated_score = int(calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
         all_counts[recalculated_score] += 1
-        if ref_base != calling_base:
+        if ref_base_2 != calling_base:
             error_counts[recalculated_score] += 1
         if index % 100000 == 0:
             print("Running line {}".format(index))
