@@ -28,7 +28,9 @@ def pipeline_calculate_topology_score_with_probability(read_path, start, end, er
             if len(split_txt) != 9:
                 continue
             base_quality = int(split_txt[2])
-            ref_base = split_txt[1][1]
+            ref_base_1 = split_txt[1][0]
+            ref_base_2 = split_txt[1][1]
+            ref_base_3 = split_txt[1][2]
             call_base = split_txt[3]
             # get parallel bases in float
             parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
@@ -40,9 +42,10 @@ def pipeline_calculate_topology_score_with_probability(read_path, start, end, er
             parallel_vec_f = []
             for parallel in parallel_vec_s:
                 parallel_vec_f.append(float(parallel))
-            recalculated_score = int(util.calculate_topology_score(call_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
+            recalculated_score = int(util.calculate_topology_score_variable_prob(ref_base_1, call_base, ref_base_3, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
+            #recalculated_score = int(util.calculate_topology_score(call_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
             all_counts[(194 * thread_index) + recalculated_score] += 1
-            if ref_base != call_base:
+            if ref_base_2 != call_base:
                 error_counts[(194 * thread_index) + recalculated_score] += 1
             if (index - start) % 100001 == 0:
                 print("Thread {} Progress {}/{}".format(thread_index, index - start, end - start))
@@ -68,8 +71,8 @@ for thread_index in range(len(threads)):
     thread_start = int(one_thread_allocation * thread_index)
     thread_end = int(thread_start + one_thread_allocation)
     # run the thread
-    threads[thread_index] = Process(target=print_pacbio_scores, args=(file_path, thread_start, thread_end, error_counts, all_counts, thread_index))
-    #threads[thread_index] = Process(target=pipeline_calculate_topology_score_with_probability, args=(file_path, thread_start, thread_end, error_counts, all_counts, 0.85, thread_index))
+    #threads[thread_index] = Process(target=print_pacbio_scores, args=(file_path, thread_start, thread_end, error_counts, all_counts, thread_index))
+    threads[thread_index] = Process(target=pipeline_calculate_topology_score_with_probability, args=(file_path, thread_start, thread_end, error_counts, all_counts, 0.85, thread_index))
     #threads[thread_index] = Thread(target=pipeline_calculate_topology_score_with_probability, args=(file_path, thread_start, thread_end, error_counts, all_counts, 0.85, thread_index))
     threads[thread_index].start()
 
