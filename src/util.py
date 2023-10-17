@@ -36,9 +36,9 @@ def convert_3_bases_to_64_bit(ref_base_1, call_base, ref_base_3):
 def convert_64_bit_to_3_bases(converted_number):
     current_number = converted_number
     ref_int_1 = current_number % 4
-    current_number = current_number / 4
+    current_number = int(current_number / 4)
     call_int = current_number % 4
-    current_number = current_number / 4
+    current_number = int(current_number / 4)
     ref_int_3 = current_number % 4
     print("after numbers {} {} {}".format(ref_int_1, call_int, ref_int_3))
     ref_base_1 = get_int_to_base(ref_int_1)
