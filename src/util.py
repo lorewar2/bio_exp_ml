@@ -30,6 +30,7 @@ def convert_3_bases_to_64_bit(ref_base_1, call_base, ref_base_3):
     call_int = get_base_to_int(call_base)
     ref_int_3 = get_base_to_int(ref_base_3)
     converted_number = (ref_int_1 + call_int * 4 + ref_int_3 * 16)
+    print("before numbers {} {} {}".format(ref_int_1, call_int, ref_int_3))
     return converted_number
 
 def convert_64_bit_to_3_bases(converted_number):
@@ -38,12 +39,37 @@ def convert_64_bit_to_3_bases(converted_number):
     current_number = current_number / 4
     call_int = current_number % 4
     current_number = current_number / 4
-    ref_int_3 = current_number % 4 
+    ref_int_3 = current_number % 4
+    print("after numbers {} {} {}".format(ref_int_1, call_int, ref_int_3))
     ref_base_1 = get_int_to_base(ref_int_1)
     call_base = get_int_to_base(call_int)
     ref_base_3 = get_int_to_base(ref_int_3)
     return  (ref_base_1, call_base, ref_base_3)
-    
+
+def get_base_to_int(base):
+    result = 0
+    if base == "A":
+        result = 0
+    elif base == "C":
+        result = 1
+    elif base == "G":
+        result = 2
+    elif base == "T":
+        result = 3
+    return result
+
+def get_int_to_base(number):
+    base = 'P'
+    if number == 0:
+        base = 'A'
+    elif number == 1:
+        base = 'C'
+    elif number == 2:
+        base = 'G'
+    elif number == 3:
+        base = 'T'
+    return base
+
 def pipeline_calculate_topology_score_with_probability(read_path, prob):
     # arrays to save the result
     error_counts = [0] * 300
@@ -519,30 +545,6 @@ def one_hot_encoding_bases(base):
         one_hot_base[3] = 1.0
     return one_hot_base
 
-def get_base_to_int(base):
-    result = 0
-    if base == "A":
-        result = 0
-    elif base == "C":
-        result = 1
-    elif base == "G":
-        result = 2
-    elif base == "T":
-        result = 3
-    return result
-
-def get_int_to_base(number):
-    base = 'P'
-    if number == 0:
-        base = 'A'
-    elif number == 1:
-        base = 'C'
-    elif number == 2:
-        base = 'G'
-    elif number == 3:
-        base = 'T'
-    return base
-    
 def list_corrected_errors_rust_input(read_path):
     result_array = np.zeros((4, 4, 16))
     # open the file with ml data
