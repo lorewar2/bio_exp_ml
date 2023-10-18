@@ -22,9 +22,10 @@ def calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3,
             if index == converted_number:
                 mutations = int(line.strip())
     if mutations > 0:
-        prob = 0.70
+        prob = 0.50
     else:
         prob = 0.85
+    print(prob)
     #prob = (slope * mutations) + intercept
     #print("mutations for {}{}{} = {} == {}".format(ref_base_1, calling_base, ref_base_3, mutations, prob))
     # read the file
@@ -142,7 +143,7 @@ def get_int_to_base(number):
 def pipeline_calculate_topology_score_with_probability(read_path, prob):
     # arrays to save the result
     error_counts = [0] * 300
-    all_counts = [0] * 300
+    #all_counts = [0] * 300
     file = open(read_path, "r")
     for index, line in enumerate(file):
         split_txt = line.split(" ")
@@ -162,14 +163,14 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
         #recalculated_score = int(calculate_topology_score(calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
-        recalculated_score = int(calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
-        all_counts[recalculated_score] += 1
+        #all_counts[recalculated_score] += 1
         if ref_base_2 != calling_base:
+            recalculated_score = int(calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
             error_counts[recalculated_score] += 1
         if index % 100000 == 0:
             print("Running line {}".format(index))
     print(error_counts)
-    print(all_counts)
+    #print(all_counts)
     return
 
 def add_corrected_errors_to_file(read_path, write_path):
