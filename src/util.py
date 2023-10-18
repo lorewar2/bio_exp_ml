@@ -67,23 +67,23 @@ def identify_error_threebase_context(data_path, write_path):
             ref_base_3 = split_txt[1][2]
             call_base = split_txt[3]
             parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
-        char_remov = ["]", "[", ",", "\n"]
-        for char in char_remov:
-            for index_s in range(len(parallel_vec_s)):
-                temp = parallel_vec_s[index_s].replace(char, "")
-                parallel_vec_s[index_s] = temp
-        parallel_vec_f = []
-        for parallel in parallel_vec_s:
-            parallel_vec_f.append(float(parallel))
-        if ref_base_2 != call_base:
-            recalculated_score = int(calculate_topology_score_variable_prob(ref_base_1, call_base, ref_base_3, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
-            if recalculated_score >= 93:
-                #print("before conversion {} {} {}".format(ref_base_1, call_base, ref_base_3))
-                converted_number = convert_3_bases_to_64_bit(ref_base_1, call_base, ref_base_3)
-                #print("converted number {}".format(converted_number))
-                converted_base_1, converted_base_2, converted_base_3 = convert_64_bit_to_3_bases(converted_number)
-                #print("after conversion {} {} {}".format(converted_base_1, converted_base_2, converted_base_3))
-                three_base_context_error_vec[converted_number] += 1
+            char_remov = ["]", "[", ",", "\n"]
+            for char in char_remov:
+                for index_s in range(len(parallel_vec_s)):
+                    temp = parallel_vec_s[index_s].replace(char, "")
+                    parallel_vec_s[index_s] = temp
+            parallel_vec_f = []
+            for parallel in parallel_vec_s:
+                parallel_vec_f.append(float(parallel))
+            if ref_base_2 != call_base:
+                recalculated_score = int(calculate_topology_score_variable_prob(ref_base_1, call_base, ref_base_3, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
+                if recalculated_score >= 93:
+                    #print("before conversion {} {} {}".format(ref_base_1, call_base, ref_base_3))
+                    converted_number = convert_3_bases_to_64_bit(ref_base_1, call_base, ref_base_3)
+                    #print("converted number {}".format(converted_number))
+                    converted_base_1, converted_base_2, converted_base_3 = convert_64_bit_to_3_bases(converted_number)
+                    #print("after conversion {} {} {}".format(converted_base_1, converted_base_2, converted_base_3))
+                    three_base_context_error_vec[converted_number] += 1
     print(three_base_context_error_vec)
     with open(write_path, 'a') as fw:
         for entry in three_base_context_error_vec:
