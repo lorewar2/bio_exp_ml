@@ -4,7 +4,7 @@ import random
 import numpy as np
 import scipy.special
 
-PROB_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob.txt"
+PROB_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 
 def calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
     # calculate the slope and intercept
@@ -21,7 +21,11 @@ def calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3,
         for index, line in enumerate(hr):
             if index == converted_number:
                 mutations = int(line.strip())
-    prob = (slope * mutations) + intercept
+    if mutations > 0:
+        prob = 0.70
+    else:
+        prob = 0.85
+    #prob = (slope * mutations) + intercept
     #print("mutations for {}{}{} = {} == {}".format(ref_base_1, calling_base, ref_base_3, mutations, prob))
     # read the file
     ln_prob_base_A = np.log(0.25)

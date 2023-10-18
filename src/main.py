@@ -17,8 +17,8 @@ def main():
     random.seed(2)
     np.random.seed(0)
     #train_model()
-    #util.pipeline_calculate_topology_score_with_probability(DATA_PATH, 0.95)
-    util.identify_error_threebase_context("/data1/hifi_consensus/all_data/chr2_corrected_errors.txt", "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt")
+    util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/all_data/chr2_corrected_errors.txt", 0.95)
+    #util.identify_error_threebase_context("/data1/hifi_consensus/all_data/chr2_corrected_errors.txt", "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt")
     #evaluate_model()
     #view_result()
     return
