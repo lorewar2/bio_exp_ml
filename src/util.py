@@ -5,12 +5,13 @@ import numpy as np
 import scipy.special
 
 PROB_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
+HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 
 def calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
     # calculate the slope and intercept
     min_mutations = 2_000.0
     max_mutations = 25_000.0
-    min_prob = 0.85
+    min_prob = 0.80
     max_prob = 0.65
     slope = (max_prob - min_prob) / (max_mutations - min_mutations)
     intercept = max_prob - (slope * max_mutations)
@@ -21,19 +22,13 @@ def calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3,
         for index, line in enumerate(hr):
             if index == converted_number:
                 mutations = int(line.strip())
-    if mutations > 0:
-        prob = 0.50
-    else:
-        prob = 0.85
-    print(prob)
-    #prob = (slope * mutations) + intercept
-    #print("mutations for {}{}{} = {} == {}".format(ref_base_1, calling_base, ref_base_3, mutations, prob))
+    prob = (slope * mutations) + intercept
     # read the file
     ln_prob_base_A = np.log(0.25)
     ln_prob_base_C = np.log(0.25)
     ln_prob_base_G = np.log(0.25)
     ln_prob_base_T = np.log(0.25)
-    
+
     ln_prob_data_given_A = np.log(calculate_binomial(num_of_reads, base_A_count, prob))
     ln_prob_data_given_C = np.log(calculate_binomial(num_of_reads, base_C_count, prob))
     ln_prob_data_given_G = np.log(calculate_binomial(num_of_reads, base_G_count, prob))
