@@ -7,6 +7,78 @@ import scipy.special
 PROB_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 
+def get_base_context_from_file(data_path, prob):
+    # initialize the arrays
+    three_base_context_info = []
+    for _ in range(0, pow(5, 3)):
+        three_base_context_info.append([0, 0, 0, 0, 0, 0, 0])
+    five_base_context_info = []
+    for _ in range(0, pow(5, 5)):
+        five_base_context_info.append([0, 0, 0, 0, 0, 0, 0])
+    seven_base_context_info = []
+    for _ in range(0, pow(5, 7)):
+        seven_base_context_info.append([0, 0, 0, 0, 0, 0, 0])
+    read_file = open(data_path, 'r')
+    for index, line in enumerate(read_file):
+        split_txt = line.split(" ")
+        if len(split_txt) != 11:
+            continue
+        # get the quality
+        calling_base = split_txt[3]
+        parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
+        char_remov = ["]", "[", ",", "\n"]
+        for char in char_remov:
+            for index_s in range(len(parallel_vec_s)):
+                temp = parallel_vec_s[index_s].replace(char, "")
+                parallel_vec_s[index_s] = temp
+        parallel_vec_f = []
+        for parallel in parallel_vec_s:
+            parallel_vec_f.append(float(parallel))
+        recalculated_score = int(calculate_topology_score(calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
+    return
+
+def convert_bases_to_bits(base_array, count):
+    converted_number = 0
+    for index in range(0, count):
+        base_number = get_base_to_int(base_array[index])
+        converted_number += pow(5, index) * base_number
+    return converted_number
+
+def convert_bits_to_bases(converted_number, count):
+    base_array = []
+    for _ in range(0, count):
+        base_array.append(converted_number % 5)
+        converted_number = int(converted_number / 5)
+    return base_array
+
+def get_base_to_int(base):
+    result = 4
+    if base == "A":
+        result = 0
+    elif base == "C":
+        result = 1
+    elif base == "G":
+        result = 2
+    elif base == "T":
+        result = 3
+    elif base == "X":
+        result = 4
+    return result
+
+def get_int_to_base(number):
+    base = 'X'
+    if number == 0:
+        base = 'A'
+    elif number == 1:
+        base = 'C'
+    elif number == 2:
+        base = 'G'
+    elif number == 3:
+        base = 'T'
+    elif number == 4:
+        base = 'X'
+    return base
+
 def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filter_path, write_path):
     # ALL DATA IN ORDER
     # read the confident file put relavant chromosone data in array
@@ -167,51 +239,6 @@ def identify_error_threebase_context(data_path, write_path):
         for entry in three_base_context_error_vec:
             fw.write(str(entry) + "\n")
     return
-
-def convert_3_bases_to_64_bit(ref_base_1, call_base, ref_base_3):
-    ref_int_1 = get_base_to_int(ref_base_1)
-    call_int = get_base_to_int(call_base)
-    ref_int_3 = get_base_to_int(ref_base_3)
-    converted_number = (ref_int_1 + call_int * 4 + ref_int_3 * 16)
-    #print("before numbers {} {} {}".format(ref_int_1, call_int, ref_int_3))
-    return converted_number
-
-def convert_64_bit_to_3_bases(converted_number):
-    current_number = converted_number
-    ref_int_1 = current_number % 4
-    current_number = int(current_number / 4)
-    call_int = current_number % 4
-    current_number = int(current_number / 4)
-    ref_int_3 = current_number % 4
-    #print("after numbers {} {} {}".format(ref_int_1, call_int, ref_int_3))
-    ref_base_1 = get_int_to_base(ref_int_1)
-    call_base = get_int_to_base(call_int)
-    ref_base_3 = get_int_to_base(ref_int_3)
-    return  (ref_base_1, call_base, ref_base_3)
-
-def get_base_to_int(base):
-    result = 0
-    if base == "A":
-        result = 0
-    elif base == "C":
-        result = 1
-    elif base == "G":
-        result = 2
-    elif base == "T":
-        result = 3
-    return result
-
-def get_int_to_base(number):
-    base = 'P'
-    if number == 0:
-        base = 'A'
-    elif number == 1:
-        base = 'C'
-    elif number == 2:
-        base = 'G'
-    elif number == 3:
-        base = 'T'
-    return base
 
 def pipeline_calculate_topology_score_with_probability(read_path, prob):
     # arrays to save the result
