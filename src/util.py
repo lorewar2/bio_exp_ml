@@ -7,6 +7,84 @@ import scipy.special
 PROB_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 
+def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filter_path, write_path):
+    # ALL DATA IN ORDER
+    # read the confident file put relavant chromosone data in array
+    confident_regions = []
+    path = "{}/confident_data.txt".format(filter_path)
+    with open(path, 'r') as cr:
+        for index, line in enumerate(cr):
+            split_txt = line.split(" ")
+            if chromosone == split_txt[0]:
+                start = int(split_txt[1])
+                end = int(split_txt[3])
+                confident_regions.append((start, end))
+    # read germline file put relavant chromosone data in array
+    germline_locations = []
+    path = "{}/germline_data.txt".format(filter_path)
+    with open(path, 'r') as gr:
+        for index, line in enumerate(gr):
+            split_txt = line.split(" ")
+            if chromosone == split_txt[0]:
+                location = int(split_txt[1])
+                count = len(split_txt[2])
+                germline_locations.append((location, count))
+    # read the data file, go line by line
+    modified_lines = []
+    read_file = open(data_path, 'r')
+    confident_index = 0
+    germline_index = 0
+    print("confident regions : {} germline locations : {}".format(len(confident_regions), len(germline_locations)))
+    with open(write_path, 'a') as fw:
+        for index, line in enumerate(read_file):
+            split_txt = line.split(" ")
+            if len(split_txt) != 11:
+                continue
+            current_location = int(split_txt[0])
+            # iterate to correct area of confident region
+            while current_location > confident_regions[confident_index][1]:
+                if confident_index + 1 >= len(confident_regions):
+                    break
+                confident_index += 1
+            # iterate to correct area of germline region
+            while current_location > germline_locations[germline_index][0]:
+                if germline_index + 1 >= len(germline_locations):
+                    break
+                germline_index += 1
+            # check if in confident region if not continue
+            if (current_location < confident_regions[confident_index][0]) or (current_location > confident_regions[confident_index][1]):
+                #print("Not confident region {} start: {} end: {} ".format(current_location, confident_regions[confident_index][0], confident_regions[confident_index][1]))
+                continue
+            # check if germline variant
+            if (current_location >= germline_locations[germline_index][0]) and (current_location <= (germline_locations[germline_index][0] + germline_locations[germline_index][1])):
+                #print("Germline variant location {} == {} +- {}".format(current_location, germline_locations[germline_index][0], germline_locations[germline_index][1]))
+                continue
+            # this is run if not filtered
+            location = split_txt[0].zfill(9)
+            three_base_ref = split_txt[1]
+            seven_base_cont = split_txt[3]
+            quality = split_txt[4].zfill(2)
+            base = split_txt[5]
+            count = split_txt[6].zfill(2)
+            # get the parallel bases
+            parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
+            char_remov = ["]", "[", ",", "\n"]
+            for char in char_remov:
+                for index_s in range(len(parallel_vec_s)):
+                    temp = parallel_vec_s[index_s].replace(char, "")
+                    parallel_vec_s[index_s] = temp
+            parallel_vec_mod = []
+            for parallel in parallel_vec_s:
+                parallel_vec_mod.append(parallel.zfill(2))
+            modified_line = "{} {} : {} {} {} {} [{} {} {} {}]\n".format(location, three_base_ref, seven_base_cont, quality, base, count, parallel_vec_mod[0], parallel_vec_mod[1], parallel_vec_mod[2], parallel_vec_mod[3])
+            modified_lines.append(modified_line)
+            if index % 1_000_000 == 0:
+                for write_line in modified_lines:
+                    fw.write(write_line)
+                modified_lines.clear()
+                print("processed {} records, {}/{}".format(index, germline_index, len(germline_locations)))
+    return
+
 def calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
     # calculate the slope and intercept
     min_mutations = 2_000.0
@@ -193,7 +271,6 @@ def add_corrected_errors_to_file(read_path, write_path):
             modified_line = "{} {} {} {} {} [{} {} {} {}]\n".format(location, three_base, quality, base, count, parallel_vec_mod[0], parallel_vec_mod[1], parallel_vec_mod[2], parallel_vec_mod[3])
             fw.write(modified_line)
 
-
 def remove_errors_from_file(read_path, write_path):
     # arrays to save the result
     total_error_count = 0
@@ -332,115 +409,6 @@ def print_pacbio_scores(read_path):
     print(error_counts)
     print(all_counts)
     print(read_path)
-    return
-
-def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filter_path, write_path):
-    # ALL DATA IN ORDER
-    # read the confident file put relavant chromosone data in array
-    confident_regions = []
-    path = "{}/confident_data.txt".format(filter_path)
-    with open(path, 'r') as cr:
-        for index, line in enumerate(cr):
-            split_txt = line.split(" ")
-            if chromosone == split_txt[0]:
-                start = int(split_txt[1])
-                end = int(split_txt[3])
-                confident_regions.append((start, end))
-    # read germline file put relavant chromosone data in array
-    germline_locations = []
-    path = "{}/germline_data.txt".format(filter_path)
-    with open(path, 'r') as gr:
-        for index, line in enumerate(gr):
-            split_txt = line.split(" ")
-            if chromosone == split_txt[0]:
-                location = int(split_txt[1])
-                count = len(split_txt[2])
-                germline_locations.append((location, count))
-    # read indel file put relavant chromosone data in array
-    indel_locations = []
-    path = "{}/chr2_indel_data.txt".format(filter_path)
-    with open(path, 'r') as ir:
-        for index, line in enumerate(ir):
-            split_txt = line.split(" ")
-            if chromosone == split_txt[0]:
-                location = int(split_txt[1])
-                indel_locations.append(location)
-    # read indel file put relavant chromosone data in array
-    depth_locations = []
-    path = "{}/chr2_depth_data.txt".format(filter_path)
-    with open(path, 'r') as dr:
-        for index, line in enumerate(dr):
-            split_txt = line.split(" ")
-            if chromosone == split_txt[0]:
-                location = int(split_txt[1])
-                depth_locations.append(location)
-    # read the data file, go line by line
-    modified_lines = []
-    read_file = open(data_path, 'r')
-    confident_index = 0
-    germline_index = 0
-    indel_index = 0
-    depth_index = 0
-    with open(write_path, 'a') as fw:
-        for index, line in enumerate(read_file):
-            split_txt = line.split(" ")
-            if len(split_txt) != 9:
-                continue
-            current_location = int(split_txt[0])
-            # iterate to correct area of confident region
-            while current_location > confident_regions[confident_index][1]:
-                if confident_index + 1 >= len(confident_regions):
-                    break
-                confident_index += 1
-            # iterate to correct area of germline region
-            while current_location > germline_locations[germline_index][0]:
-                if germline_index + 1 >= len(germline_locations):
-                    break
-                germline_index += 1
-            # iterate to correct area of indel region
-            while current_location > indel_locations[indel_index]:
-                if indel_index + 1 >= len(germline_locations):
-                    break
-                indel_index += 1
-            # iterate to correct area of depth region
-            while current_location > depth_locations[depth_index]:
-                if indel_index + 1 >= len(depth_locations):
-                    break
-                depth_index += 1
-            # check if in confident region if not continue
-            if (current_location < confident_regions[confident_index][0]) or (current_location > confident_regions[confident_index][1]):
-                #print("Not confident region {} start: {} end: {} ".format(current_location, confident_regions[confident_index][0], confident_regions[confident_index][1]))
-                continue
-            # check if germline variant
-            if (current_location >= germline_locations[germline_index][0]) and (current_location <= (germline_locations[germline_index][0] + germline_locations[germline_index][1])):
-                #print("Germline variant location {} == {} +- {}".format(current_location, germline_locations[germline_index][0], germline_locations[germline_index][1]))
-                continue
-            # check if indel or depth location
-            if current_location == indel_locations[indel_index] or current_location == depth_locations[depth_index]:
-                continue
-            # this is run if not filtered
-            location = split_txt[0].zfill(9)
-            three_base = split_txt[1]
-            quality = split_txt[2].zfill(2)
-            base = split_txt[3]
-            count = split_txt[4].zfill(2)
-            # get the parallel bases
-            parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
-            char_remov = ["]", "[", ",", "\n"]
-            for char in char_remov:
-                for index_s in range(len(parallel_vec_s)):
-                    temp = parallel_vec_s[index_s].replace(char, "")
-                    parallel_vec_s[index_s] = temp
-            parallel_vec_mod = []
-            for parallel in parallel_vec_s:
-                parallel_vec_mod.append(parallel.zfill(2))
-            modified_line = "{} {} {} {} {} [{} {} {} {}]\n".format(location, three_base, quality, base, count, parallel_vec_mod[0], parallel_vec_mod[1], parallel_vec_mod[2], parallel_vec_mod[3])
-            modified_lines.append(modified_line)
-            if index % 1_000_000 == 0:
-                for write_line in modified_lines:
-                    fw.write(write_line)
-                modified_lines.clear()
-                print("processed {} records, {}/{}".format(index, germline_index, len(germline_locations)))
     return
 
 def make_sub_array(error_lines, location):
