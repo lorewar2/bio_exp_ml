@@ -16,8 +16,9 @@ def main():
     torch.manual_seed(1)
     random.seed(3)
     np.random.seed(2)
-    train_model()
+    #train_model()
     #util.write_errors_to_file("/data1/hifi_consensus/all_data/7_base_context/chr2_filtered.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt")
+    util.get_base_context_from_file("/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt", 0.85)
     return
 
 def view_result():
@@ -192,6 +193,3 @@ def train_model():
 
 if __name__ == "__main__":
     main()
-   
-
-

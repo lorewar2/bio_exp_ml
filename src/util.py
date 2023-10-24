@@ -7,31 +7,6 @@ import scipy.special
 PROB_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 
-def write_errors_to_file(read_path, write_path):
-    # arrays to save the result
-    total_error_count = 0
-    file = open(read_path, "r")
-    modified_lines = []
-    with open(write_path, 'a') as fw:
-        for index, line in enumerate(file):
-            split_txt = line.split(" ")
-            if len(split_txt) != 11:
-                continue
-            ref_base = split_txt[1][1]
-            call_base = split_txt[5]
-            if ref_base != call_base:
-                total_error_count += 1
-                modified_lines.append(line)
-            if index % 100000 == 0:
-                for write_line in modified_lines:
-                    fw.write(write_line)
-                modified_lines.clear()
-                print("processed {} records, {}".format(index, total_error_count))
-        for write_line in modified_lines:
-            fw.write(write_line)
-    print(read_path)
-    return
-
 def get_base_context_from_file(data_path, prob):
     # initialize the arrays
     three_base_context_info = []
@@ -50,6 +25,7 @@ def get_base_context_from_file(data_path, prob):
             continue
         # get the quality
         calling_base = split_txt[3]
+        ref_base = split_txt[1][1]
         parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
@@ -60,6 +36,45 @@ def get_base_context_from_file(data_path, prob):
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
         recalculated_score = int(calculate_topology_score(calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
+        # three base context
+        three_base_num = convert_bases_to_bits([split_txt[3][2], split_txt[3][3], split_txt[3][4]], 3)
+        # five base context
+        five_base_num = convert_bases_to_bits([split_txt[3][1], split_txt[3][2], split_txt[3][3], split_txt[3][4], split_txt[3][5]], 5)
+        # seven base context
+        seven_base_num = convert_bases_to_bits([split_txt[3][0], split_txt[3][1], split_txt[3][2], split_txt[3][3], split_txt[3][4], split_txt[3][5], split_txt[3][6]], 7)
+        # if error
+        if ref_base != calling_base:
+            three_base_context_info[three_base_num][1] += 1
+            five_base_context_info[five_base_num][1] += 1
+            seven_base_context_info[seven_base_num][1] += 1
+            if recalculated_score > 50:
+                three_base_context_info[three_base_num][2] += 1
+                five_base_context_info[five_base_num][2] += 1
+                seven_base_context_info[seven_base_num][2] += 1
+            if recalculated_score > 60:
+                three_base_context_info[three_base_num][3] += 1
+                five_base_context_info[five_base_num][3] += 1
+                seven_base_context_info[seven_base_num][3] += 1
+            if recalculated_score > 70:
+                three_base_context_info[three_base_num][4] += 1
+                five_base_context_info[five_base_num][4] += 1
+                seven_base_context_info[seven_base_num][4] += 1
+            if recalculated_score > 80:
+                three_base_context_info[three_base_num][5] += 1
+                five_base_context_info[five_base_num][5] += 1
+                seven_base_context_info[seven_base_num][5] += 1
+            if recalculated_score > 90:
+                three_base_context_info[three_base_num][6] += 1
+                five_base_context_info[five_base_num][6] += 1
+                seven_base_context_info[seven_base_num][6] += 1
+        else:
+            three_base_context_info[three_base_num][0] += 1
+            five_base_context_info[five_base_num][0] += 1
+            seven_base_context_info[seven_base_num][0] += 1
+            
+    print(three_base_context_info)
+    print(five_base_context_info)
+    print(seven_base_context_info)
     return
 
 def convert_bases_to_bits(base_array, count):
@@ -72,7 +87,7 @@ def convert_bases_to_bits(base_array, count):
 def convert_bits_to_bases(converted_number, count):
     base_array = []
     for _ in range(0, count):
-        base_array.append(converted_number % 5)
+        base_array.append(get_int_to_base(converted_number % 5))
         converted_number = int(converted_number / 5)
     return base_array
 
@@ -103,6 +118,31 @@ def get_int_to_base(number):
     elif number == 4:
         base = 'X'
     return base
+
+def write_errors_to_file(read_path, write_path):
+    # arrays to save the result
+    total_error_count = 0
+    file = open(read_path, "r")
+    modified_lines = []
+    with open(write_path, 'a') as fw:
+        for index, line in enumerate(file):
+            split_txt = line.split(" ")
+            if len(split_txt) != 11:
+                continue
+            ref_base = split_txt[1][1]
+            call_base = split_txt[5]
+            if ref_base != call_base:
+                total_error_count += 1
+                modified_lines.append(line)
+            if index % 100000 == 0:
+                for write_line in modified_lines:
+                    fw.write(write_line)
+                modified_lines.clear()
+                print("processed {} records, {}".format(index, total_error_count))
+        for write_line in modified_lines:
+            fw.write(write_line)
+    print(read_path)
+    return
 
 def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filter_path, write_path):
     # ALL DATA IN ORDER
