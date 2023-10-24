@@ -7,7 +7,7 @@ import scipy.special
 PROB_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 
-def get_base_context_from_file(data_path, prob):
+def get_base_context_from_file(data_path, write_path, prob):
     # initialize the arrays
     three_base_context_info = []
     for _ in range(0, pow(5, 3)):
@@ -26,7 +26,7 @@ def get_base_context_from_file(data_path, prob):
         # get the quality
         calling_base = split_txt[3]
         ref_base = split_txt[1][1]
-        parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
+        parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
             for index_s in range(len(parallel_vec_s)):
@@ -36,6 +36,7 @@ def get_base_context_from_file(data_path, prob):
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
         recalculated_score = int(calculate_topology_score(calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
+        
         # three base context
         three_base_num = convert_bases_to_bits([split_txt[3][2], split_txt[3][3], split_txt[3][4]], 3)
         # five base context
@@ -71,10 +72,23 @@ def get_base_context_from_file(data_path, prob):
             three_base_context_info[three_base_num][0] += 1
             five_base_context_info[five_base_num][0] += 1
             seven_base_context_info[seven_base_num][0] += 1
-            
-    print(three_base_context_info)
-    print(five_base_context_info)
-    print(seven_base_context_info)
+    # write the data to file
+    with open(write_path, 'a') as fw:
+        for index, info in enumerate(three_base_context_info):
+            bases = convert_bits_to_bases(index, 3)
+            bases_str = "{}{}{}".format(bases[0], bases[1], bases[2])
+            info_str = "{} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
+            fw.write("{} {} {}".format(index, bases_str, info_str))
+        for index, info in enumerate(five_base_context_info):
+            bases = convert_bits_to_bases(index, 5)
+            bases_str = "{}{}{}{}{}".format(bases[0], bases[1], bases[2], bases[3], bases[4])
+            info_str = "{} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
+            fw.write("{} {} {}".format(index, bases_str, info_str))
+        for index, info in enumerate(seven_base_context_info):
+            bases = convert_bits_to_bases(index, 7)
+            bases_str = "{}{}{}{}{}{}{}".format(bases[0], bases[1], bases[2], bases[3], bases[4], bases[5], bases[6])
+            info_str = "{} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
+            fw.write("{} {} {}".format(index, bases_str, info_str))
     return
 
 def convert_bases_to_bits(base_array, count):
