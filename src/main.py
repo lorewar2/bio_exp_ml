@@ -9,7 +9,7 @@ import math
 import util
 
 DATA_PATH = "/data1/hifi_consensus/all_data/chr2_errors_removed.txt"
-MODEL_PATH = "./result/model/2_layered_model.pt"
+MODEL_PATH = "./result/model/1_layered_model.pt"
 
 def main():
     # set the seed
@@ -17,11 +17,7 @@ def main():
     random.seed(2)
     np.random.seed(0)
     #train_model()
-    #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/all_data/chr2_corrected_errors.txt", 0.95)
-    util.filter_data_using_confident_germline_indel_depth("chr2", "/data1/hifi_consensus/all_data/7_base_context/chr2.txt", "/data1/hifi_consensus/all_data/filters", "/data1/hifi_consensus/all_data/7_base_context/chr2_filtered.txt")
-    #util.identify_error_threebase_context("/data1/hifi_consensus/all_data/chr2_corrected_errors.txt", "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt")
-    #evaluate_model()
-    #view_result()
+    util.write_errors_to_file("/data1/hifi_consensus/all_data/7_base_context/chr2_filtered.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt")
     return
 
 def view_result():
@@ -141,16 +137,16 @@ def train_model():
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
-        num_workers = 1,
+        num_workers = 64,
         shuffle = False,
         drop_last = True
     )
     # build the model object
-    lr_model = model.quality_model_2_layer()
+    lr_model = model.quality_model_1_layer()
 
     # define custom weights
     custom_weight = torch.rand(lr_model.linear.weight.shape)
-    first_layer_size = 200
+    first_layer_size = 1
     # calling base count
     for i in range(0, first_layer_size):
         custom_weight[i][65] = torch.tensor(1.0437)
@@ -167,7 +163,7 @@ def train_model():
     optimizer = torch.optim.SGD(lr_model.parameters(), lr=learningRate)
     criterion = torch.nn.MSELoss()
 
-    torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, MODEL_PATH)
+    #torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, MODEL_PATH)
     # # load the previous saved trained model
     checkpoint = torch.load(MODEL_PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])

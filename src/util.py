@@ -7,6 +7,31 @@ import scipy.special
 PROB_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
 
+def write_errors_to_file(read_path, write_path):
+    # arrays to save the result
+    total_error_count = 0
+    file = open(read_path, "r")
+    modified_lines = []
+    with open(write_path, 'a') as fw:
+        for index, line in enumerate(file):
+            split_txt = line.split(" ")
+            if len(split_txt) != 11:
+                continue
+            ref_base = split_txt[1][1]
+            call_base = split_txt[5]
+            if ref_base != call_base:
+                total_error_count += 1
+                modified_lines.append(line)
+            if index % 100000 == 0:
+                for write_line in modified_lines:
+                    fw.write(write_line)
+                modified_lines.clear()
+                print("processed {} records, {}".format(index, total_error_count))
+        for write_line in modified_lines:
+            fw.write(write_line)
+    print(read_path)
+    return
+
 def get_base_context_from_file(data_path, prob):
     # initialize the arrays
     three_base_context_info = []
@@ -311,32 +336,6 @@ def remove_errors_from_file(read_path, write_path):
             ref_base = split_txt[1][1]
             call_base = split_txt[3]
             if ref_base == call_base:
-                total_error_count += 1
-                modified_lines.append(line)
-            if index % 100000 == 0:
-                for write_line in modified_lines:
-                    fw.write(write_line)
-                modified_lines.clear()
-                print("processed {} records, {}".format(index, total_error_count))
-        for write_line in modified_lines:
-            fw.write(write_line)
-    print(read_path)
-    return
-
-def write_errors_to_file(read_path, write_path):
-    # arrays to save the result
-    total_error_count = 0
-    file = open(read_path, "r")
-    modified_lines = []
-    with open(write_path, 'a') as fw:
-        for index, line in enumerate(file):
-            split_txt = line.split(" ")
-            if len(split_txt) != 9:
-                continue
-            base_quality = int(split_txt[2])
-            ref_base = split_txt[1][1]
-            call_base = split_txt[3]
-            if ref_base != call_base:
                 total_error_count += 1
                 modified_lines.append(line)
             if index % 100000 == 0:
