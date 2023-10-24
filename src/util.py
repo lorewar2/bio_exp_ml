@@ -43,15 +43,6 @@ def get_base_context_from_file(data_path, write_path, prob):
         five_base_num = convert_bases_to_bits([split_txt[3][1], split_txt[3][2], split_txt[3][3], split_txt[3][4], split_txt[3][5]], 5)
         # seven base context
         seven_base_num = convert_bases_to_bits([split_txt[3][0], split_txt[3][1], split_txt[3][2], split_txt[3][3], split_txt[3][4], split_txt[3][5], split_txt[3][6]], 7)
-        # debug
-        print(line)
-        print("{}".format(three_base_num))
-        print("{}".format(convert_bits_to_bases(three_base_num)))
-        print("{}".format(five_base_num))
-        print("{}".format(convert_bits_to_bases(five_base_num)))
-        print("{}".format(seven_base_num))
-        print("{}".format(convert_bits_to_bases(seven_base_num)))
-        print("\n\n")
         # if error
         if ref_base != calling_base:
             three_base_context_info[three_base_num][1] += 1
@@ -112,7 +103,8 @@ def convert_bits_to_bases(converted_number, count):
     for _ in range(0, count):
         base_array.append(get_int_to_base(converted_number % 5))
         converted_number = int(converted_number / 5)
-    return base_array.reverse()
+    base_array.reverse()
+    return base_array
 
 def get_base_to_int(base):
     result = 4
