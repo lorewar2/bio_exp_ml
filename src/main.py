@@ -13,16 +13,16 @@ MODEL_PATH = "./result/model/1_layered_model.pt"
 
 def main():
     # set the seed
-    torch.manual_seed(0)
-    random.seed(2)
-    np.random.seed(0)
-    #train_model()
-    util.write_errors_to_file("/data1/hifi_consensus/all_data/7_base_context/chr2_filtered.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt")
+    torch.manual_seed(1)
+    random.seed(3)
+    np.random.seed(2)
+    train_model()
+    #util.write_errors_to_file("/data1/hifi_consensus/all_data/7_base_context/chr2_filtered.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt")
     return
 
 def view_result():
     # show the model parameters
-    lr_model = model.quality_model_2_layer()
+    lr_model = model.quality_model_1_layer()
     checkpoint = torch.load(MODEL_PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
     for name, param in lr_model.named_parameters():
@@ -106,7 +106,7 @@ def evaluate_model():
     )
     eval_len = len(eval_loader)
     # load the model
-    lr_model = model.quality_model_2_layer()
+    lr_model = model.quality_model_1_layer()
     checkpoint = torch.load(MODEL_PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
 
@@ -133,7 +133,7 @@ def train_model():
     epochs = 10
     batch_size = 1024
     # data loading
-    train_dataset = QualityDataset (DATA_PATH, False)
+    train_dataset = QualityDataset (DATA_PATH, True)
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
@@ -187,6 +187,8 @@ def train_model():
             print('epoch {}, loss {}, batch {}/{}'.format(epoch, loss.item(), batch_idx, num_batches))
         # save the trained model after each epoch
         torch.save({'epoch': epoch, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss}, MODEL_PATH)
+        # reshuffle the data for the next epoch
+        train_dataset.reshuffle()
 
 if __name__ == "__main__":
     main()

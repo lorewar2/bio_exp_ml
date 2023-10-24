@@ -12,7 +12,7 @@ class QualityDataset(torch.utils.data.Dataset):
             offset = f.tell()
             self.len = int((offset - 36) / 36) - 1
         # load all data
-        if shuffle_all:
+        if self.shuffle_all:
             # make a shuffled index
             self.index_array = np.arange(0, self.len)
             np.random.shuffle(self.index_array)
@@ -20,6 +20,12 @@ class QualityDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return self.len
+
+    def reshuffle(self):
+        if self.shuffle_all:
+            np.random.shuffle(self.index_array)
+            print("reshuffling complete")
+        return
 
     def __getitem__(self, index):
         if self.shuffle_all == True:
