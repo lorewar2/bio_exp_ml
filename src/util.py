@@ -20,6 +20,8 @@ def get_base_context_from_file(data_path, write_path, prob):
         seven_base_context_info.append([0, 0, 0, 0, 0, 0, 0])
     read_file = open(data_path, 'r')
     for index, line in enumerate(read_file):
+        if index % 1_000_000 == 0:
+            print("Running line {}".format(index))
         split_txt = line.split(" ")
         if len(split_txt) != 11:
             continue
@@ -35,8 +37,6 @@ def get_base_context_from_file(data_path, write_path, prob):
         parallel_vec_f = []
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
-        recalculated_score = int(calculate_topology_score(calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
-        
         # three base context
         three_base_num = convert_bases_to_bits([split_txt[3][2], split_txt[3][3], split_txt[3][4]], 3)
         # five base context
@@ -49,6 +49,7 @@ def get_base_context_from_file(data_path, write_path, prob):
         seven_base_context_info[seven_base_num][0] += 1
         # if error
         if ref_base != calling_base:
+            recalculated_score = int(calculate_topology_score(calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
             three_base_context_info[three_base_num][1] += 1
             five_base_context_info[five_base_num][1] += 1
             seven_base_context_info[seven_base_num][1] += 1
