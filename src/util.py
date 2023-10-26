@@ -90,7 +90,7 @@ def get_base_context_from_file(data_path, write_path1, write_path2, write_path3,
         for index, info in enumerate(three_base_context_info):
             bases = convert_bits_to_bases(index, 3)
             bases_str = "{}{}{}".format(bases[0], bases[1], bases[2])
-            info_str = "{} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
+            info_str = "{} {} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
             #if info[0] == 0 and info [1] == 0:
                 #continue
             if index in index_list_3:
@@ -99,7 +99,7 @@ def get_base_context_from_file(data_path, write_path1, write_path2, write_path3,
         for index, info in enumerate(five_base_context_info):
             bases = convert_bits_to_bases(index, 5)
             bases_str = "{}{}{}{}{}".format(bases[0], bases[1], bases[2], bases[3], bases[4])
-            info_str = "{} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
+            info_str = "{} {} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
             #if info[0] == 0 and info [1] == 0:
                 #continue
             if index in index_list_5:
@@ -108,7 +108,7 @@ def get_base_context_from_file(data_path, write_path1, write_path2, write_path3,
         for index, info in enumerate(seven_base_context_info):
             bases = convert_bits_to_bases(index, 7)
             bases_str = "{}{}{}{}{}{}{}".format(bases[0], bases[1], bases[2], bases[3], bases[4], bases[5], bases[6])
-            info_str = "{} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
+            info_str = "{} {} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
             #if info[0] == 0 and info [1] == 0:
                 #continue
             if index in index_list_7:
