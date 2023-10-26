@@ -6,7 +6,7 @@ import scipy.special
 
 HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_test.txt"
 
-def get_base_context_from_file(data_path, write_path, prob):
+def get_base_context_from_file(data_path, write_path1, write_path2, write_path3, prob):
     # initialize the arrays
     three_base_context_info = []
     for _ in range(0, pow(5, 3)):
@@ -25,7 +25,7 @@ def get_base_context_from_file(data_path, write_path, prob):
         if len(split_txt) != 11:
             continue
         # get the quality
-        calling_base = split_txt[3]
+        calling_base = split_txt[5]
         ref_base = split_txt[1][1]
         parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
         char_remov = ["]", "[", ",", "\n"]
@@ -73,7 +73,7 @@ def get_base_context_from_file(data_path, write_path, prob):
                 five_base_context_info[five_base_num][6] += 1
                 seven_base_context_info[seven_base_num][6] += 1
     # write the data to file
-    with open(write_path, 'a') as fw:
+    with open(write_path1, 'a') as fw:
         for index, info in enumerate(three_base_context_info):
             bases = convert_bits_to_bases(index, 3)
             bases_str = "{}{}{}".format(bases[0], bases[1], bases[2])
@@ -81,6 +81,7 @@ def get_base_context_from_file(data_path, write_path, prob):
             if info[0] == 0 and info [1] == 0:
                 continue
             fw.write("{} {} {}\n".format(index, bases_str, info_str))
+    with open(write_path2, 'a') as fw:
         for index, info in enumerate(five_base_context_info):
             bases = convert_bits_to_bases(index, 5)
             bases_str = "{}{}{}{}{}".format(bases[0], bases[1], bases[2], bases[3], bases[4])
@@ -88,6 +89,7 @@ def get_base_context_from_file(data_path, write_path, prob):
             if info[0] == 0 and info [1] == 0:
                 continue
             fw.write("{} {} {}\n".format(index, bases_str, info_str))
+    with open(write_path3, 'a') as fw:
         for index, info in enumerate(seven_base_context_info):
             bases = convert_bits_to_bases(index, 7)
             bases_str = "{}{}{}{}{}{}{}".format(bases[0], bases[1], bases[2], bases[3], bases[4], bases[5], bases[6])
@@ -242,6 +244,37 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
                 modified_lines.clear()
                 print("processed {} records, {}/{}".format(index, germline_index, len(germline_locations)))
     return
+def calculate_topology_score(calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads, prob):
+    ln_prob_base_A = np.log(0.25)
+    ln_prob_base_C = np.log(0.25)
+    ln_prob_base_G = np.log(0.25)
+    ln_prob_base_T = np.log(0.25)
+    
+    ln_prob_data_given_A = np.log(calculate_binomial(num_of_reads, base_A_count, prob))
+    ln_prob_data_given_C = np.log(calculate_binomial(num_of_reads, base_C_count, prob))
+    ln_prob_data_given_G = np.log(calculate_binomial(num_of_reads, base_G_count, prob))
+    ln_prob_data_given_T = np.log(calculate_binomial(num_of_reads, base_T_count, prob))
+
+    ln_sum_of_probabilities = ln_prob_data_given_A + ln_prob_base_A
+    ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_C + ln_prob_base_C)
+    ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_G + ln_prob_base_G)
+    ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_T + ln_prob_base_T)
+
+    if calling_base == "A":
+        correct_rate = np.exp(ln_prob_data_given_A + ln_prob_base_A - ln_sum_of_probabilities)
+    elif calling_base == "C":
+        correct_rate = np.exp(ln_prob_data_given_C + ln_prob_base_C - ln_sum_of_probabilities)
+    elif calling_base == "G":
+        correct_rate = np.exp(ln_prob_data_given_G + ln_prob_base_G - ln_sum_of_probabilities)
+    elif calling_base == "T":
+        correct_rate = np.exp(ln_prob_data_given_T + ln_prob_base_T - ln_sum_of_probabilities)
+    else:
+        correct_rate = np.exp(ln_prob_data_given_A + ln_prob_base_A - ln_sum_of_probabilities)
+
+    error_rate = 1.0 - correct_rate
+    quality_score = (-10.00) * np.log10(error_rate + 0.000000000000000000001)
+    #print(quality_score)
+    return quality_score
 
 def calculate_topology_score_variable_prob(mutation_list, base_context, calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
     converted_number = convert_bases_to_bits(base_context, 7)
@@ -254,7 +287,7 @@ def calculate_topology_score_variable_prob(mutation_list, base_context, calling_
     ln_prob_base_C = np.log(0.25)
     ln_prob_base_G = np.log(0.25)
     ln_prob_base_T = np.log(0.25)
-
+    
     ln_prob_data_given_A = np.log(calculate_binomial(num_of_reads, base_A_count, prob))
     ln_prob_data_given_C = np.log(calculate_binomial(num_of_reads, base_C_count, prob))
     ln_prob_data_given_G = np.log(calculate_binomial(num_of_reads, base_G_count, prob))
@@ -736,38 +769,6 @@ def print_topology_cut_scores():
     print(error_counts)
     print(all_counts)
     return
-
-def calculate_topology_score(calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads, prob):
-    ln_prob_base_A = np.log(0.25)
-    ln_prob_base_C = np.log(0.25)
-    ln_prob_base_G = np.log(0.25)
-    ln_prob_base_T = np.log(0.25)
-    
-    ln_prob_data_given_A = np.log(calculate_binomial(num_of_reads, base_A_count, prob))
-    ln_prob_data_given_C = np.log(calculate_binomial(num_of_reads, base_C_count, prob))
-    ln_prob_data_given_G = np.log(calculate_binomial(num_of_reads, base_G_count, prob))
-    ln_prob_data_given_T = np.log(calculate_binomial(num_of_reads, base_T_count, prob))
-
-    ln_sum_of_probabilities = ln_prob_data_given_A + ln_prob_base_A
-    ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_C + ln_prob_base_C)
-    ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_G + ln_prob_base_G)
-    ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_T + ln_prob_base_T)
-
-    if calling_base == "A":
-        correct_rate = np.exp(ln_prob_data_given_A + ln_prob_base_A - ln_sum_of_probabilities)
-    elif calling_base == "C":
-        correct_rate = np.exp(ln_prob_data_given_C + ln_prob_base_C - ln_sum_of_probabilities)
-    elif calling_base == "G":
-        correct_rate = np.exp(ln_prob_data_given_G + ln_prob_base_G - ln_sum_of_probabilities)
-    elif calling_base == "T":
-        correct_rate = np.exp(ln_prob_data_given_T + ln_prob_base_T - ln_sum_of_probabilities)
-    else:
-        correct_rate = np.exp(ln_prob_data_given_A + ln_prob_base_A - ln_sum_of_probabilities)
-
-    error_rate = 1.0 - correct_rate
-    quality_score = (-10.00) * np.log10(error_rate + 0.000000000000000000001)
-    #print(quality_score)
-    return quality_score
 
 def calculate_binomial(n, k, prob):
     binomial_coeff = scipy.special.binom(n, k)
