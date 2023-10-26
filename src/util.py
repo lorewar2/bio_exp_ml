@@ -243,23 +243,9 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
                 print("processed {} records, {}/{}".format(index, germline_index, len(germline_locations)))
     return
 
-def calculate_topology_score_variable_prob(base_context, calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
-    # calculate the slope and intercept
-    min_mutations = 2_000.0
-    max_mutations = 25_000.0
-    min_prob = 0.80
-    max_prob = 0.65
-    slope = (max_prob - min_prob) / (max_mutations - min_mutations)
-    intercept = max_prob - (slope * max_mutations)
-    # get number of mutations from file
+def calculate_topology_score_variable_prob(mutation_list, base_context, calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
     converted_number = convert_bases_to_bits(base_context, 7)
-    mutations = 10_000
-    with open(HIGHQUAL_FILE_PATH, 'r') as hr:
-        for index, line in enumerate(hr):
-            if index == converted_number:
-                mutations = int(line.strip())
-    prob = (slope * mutations) + intercept
-    if mutations > 0:
+    if mutation_list[converted_number] > 0:
         prob = 0.7
     else:
         prob = 0.85
@@ -296,6 +282,10 @@ def calculate_topology_score_variable_prob(base_context, calling_base, base_A_co
     return quality_score
 
 def pipeline_calculate_topology_score_with_probability(read_path, prob):
+    mutation_list = []
+    with open(HIGHQUAL_FILE_PATH, 'r') as hr:
+        for index, line in enumerate(hr):
+            mutation_list.append(int(line.strip()))
     # arrays to save the result
     error_counts = [0] * 300
     #all_counts = [0] * 300
@@ -318,9 +308,9 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
             parallel_vec_f.append(float(parallel))
         #all_counts[recalculated_score] += 1
         if ref_base != calling_base:
-            recalculated_score = int(calculate_topology_score_variable_prob(base_context, calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
+            recalculated_score = int(calculate_topology_score_variable_prob(mutation_list, base_context, calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
             error_counts[recalculated_score] += 1
-        if index % 100000 == 0:
+        if index % 100 == 0:
             print("Running line {}".format(index))
     print(error_counts)
     #print(all_counts)
