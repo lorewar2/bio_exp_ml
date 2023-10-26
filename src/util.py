@@ -4,8 +4,7 @@ import random
 import numpy as np
 import scipy.special
 
-PROB_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
-HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/chr2_prob_high_qual.txt"
+HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_test.txt"
 
 def get_base_context_from_file(data_path, write_path, prob):
     # initialize the arrays
@@ -81,19 +80,21 @@ def get_base_context_from_file(data_path, write_path, prob):
             info_str = "{} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
             if info[0] == 0 and info [1] == 0:
                 continue
-            #fw.write("{} {} {}\n".format(index, bases_str, info_str))
+            fw.write("{} {} {}\n".format(index, bases_str, info_str))
         for index, info in enumerate(five_base_context_info):
             bases = convert_bits_to_bases(index, 5)
             bases_str = "{}{}{}{}{}".format(bases[0], bases[1], bases[2], bases[3], bases[4])
             info_str = "{} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
             if info[0] == 0 and info [1] == 0:
                 continue
-            #fw.write("{} {} {}\n".format(index, bases_str, info_str))
+            fw.write("{} {} {}\n".format(index, bases_str, info_str))
         for index, info in enumerate(seven_base_context_info):
             bases = convert_bits_to_bases(index, 7)
             bases_str = "{}{}{}{}{}{}{}".format(bases[0], bases[1], bases[2], bases[3], bases[4], bases[5], bases[6])
             info_str = "{} {} {} {} {} {}".format(info[0], info[1], info[2], info[3], info[4], info[5], info[6])
-            fw.write("{}\n".format(info[6]))
+            if info[0] == 0 and info [1] == 0:
+                continue
+            fw.write("{} {} {}\n".format(index, bases_str, info_str))
     return
 
 def convert_bases_to_bits(base_array, count):
@@ -242,7 +243,7 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
                 print("processed {} records, {}/{}".format(index, germline_index, len(germline_locations)))
     return
 
-def calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
+def calculate_topology_score_variable_prob(base_context, calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
     # calculate the slope and intercept
     min_mutations = 2_000.0
     max_mutations = 25_000.0
@@ -251,13 +252,17 @@ def calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3,
     slope = (max_prob - min_prob) / (max_mutations - min_mutations)
     intercept = max_prob - (slope * max_mutations)
     # get number of mutations from file
-    converted_number = convert_3_bases_to_64_bit(ref_base_1, calling_base, ref_base_3)
+    converted_number = convert_bases_to_bits(base_context, 7)
     mutations = 10_000
-    with open(PROB_FILE_PATH, 'r') as hr:
+    with open(HIGHQUAL_FILE_PATH, 'r') as hr:
         for index, line in enumerate(hr):
             if index == converted_number:
                 mutations = int(line.strip())
     prob = (slope * mutations) + intercept
+    if mutations > 0:
+        prob = 0.7
+    else:
+        prob = 0.85
     # read the file
     ln_prob_base_A = np.log(0.25)
     ln_prob_base_C = np.log(0.25)
@@ -290,41 +295,6 @@ def calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3,
     #print(quality_score)
     return quality_score
 
-def identify_error_threebase_context(data_path, write_path):
-    three_base_context_error_vec = [0] * 64
-    with open(data_path, 'r') as hr:
-        for index, line in enumerate(hr):
-            split_txt = line.split(" ")
-            if len(split_txt) != 9:
-                continue
-            ref_base_1 = split_txt[1][0]
-            ref_base_2 = split_txt[1][1]
-            ref_base_3 = split_txt[1][2]
-            call_base = split_txt[3]
-            parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
-            char_remov = ["]", "[", ",", "\n"]
-            for char in char_remov:
-                for index_s in range(len(parallel_vec_s)):
-                    temp = parallel_vec_s[index_s].replace(char, "")
-                    parallel_vec_s[index_s] = temp
-            parallel_vec_f = []
-            for parallel in parallel_vec_s:
-                parallel_vec_f.append(float(parallel))
-            if ref_base_2 != call_base:
-                recalculated_score = int(calculate_topology_score_variable_prob(ref_base_1, call_base, ref_base_3, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
-                if recalculated_score >= 93:
-                    #print("before conversion {} {} {}".format(ref_base_1, call_base, ref_base_3))
-                    converted_number = convert_3_bases_to_64_bit(ref_base_1, call_base, ref_base_3)
-                    #print("converted number {}".format(converted_number))
-                    converted_base_1, converted_base_2, converted_base_3 = convert_64_bit_to_3_bases(converted_number)
-                    #print("after conversion {} {} {}".format(converted_base_1, converted_base_2, converted_base_3))
-                    three_base_context_error_vec[converted_number] += 1
-    print(three_base_context_error_vec)
-    with open(write_path, 'a') as fw:
-        for entry in three_base_context_error_vec:
-            fw.write(str(entry) + "\n")
-    return
-
 def pipeline_calculate_topology_score_with_probability(read_path, prob):
     # arrays to save the result
     error_counts = [0] * 300
@@ -332,13 +302,12 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
     file = open(read_path, "r")
     for index, line in enumerate(file):
         split_txt = line.split(" ")
-        if len(split_txt) != 9:
+        if len(split_txt) != 11:
             continue
-        calling_base = split_txt[3]
-        ref_base_1 = split_txt[1][0]
-        ref_base_2 = split_txt[1][1]
-        ref_base_3 = split_txt[1][2]
-        parallel_vec_s = [split_txt[5], split_txt[6], split_txt[7], split_txt[8]]
+        calling_base = split_txt[5]
+        ref_base = split_txt[1][1]
+        base_context = [split_txt[3][0], split_txt[3][1], split_txt[3][2], split_txt[3][3], split_txt[3][4], split_txt[3][5], split_txt[3][6]]
+        parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
             for index_s in range(len(parallel_vec_s)):
@@ -347,10 +316,9 @@ def pipeline_calculate_topology_score_with_probability(read_path, prob):
         parallel_vec_f = []
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
-        #recalculated_score = int(calculate_topology_score(calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3]), prob))
         #all_counts[recalculated_score] += 1
-        if ref_base_2 != calling_base:
-            recalculated_score = int(calculate_topology_score_variable_prob(ref_base_1, calling_base, ref_base_3, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
+        if ref_base != calling_base:
+            recalculated_score = int(calculate_topology_score_variable_prob(base_context, calling_base, parallel_vec_f[0], parallel_vec_f[1], parallel_vec_f[2], parallel_vec_f[3], (parallel_vec_f[0] + parallel_vec_f[1] + parallel_vec_f[2] + parallel_vec_f[3])))
             error_counts[recalculated_score] += 1
         if index % 100000 == 0:
             print("Running line {}".format(index))
