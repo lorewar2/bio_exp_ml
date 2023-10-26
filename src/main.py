@@ -18,7 +18,7 @@ def main():
     np.random.seed(2)
     #train_model()
     #util.write_errors_to_file("/data1/hifi_consensus/all_data/7_base_context/chr2_filtered.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt")
-    util.get_base_context_from_file("/data1/hifi_consensus/all_data/7_base_context/chr2_filtered.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_context.txt", 0.85)
+    util.get_base_context_from_file("/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_test.txt", 0.85)
     return
 
 def view_result():
