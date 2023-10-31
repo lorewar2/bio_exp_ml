@@ -28,7 +28,7 @@ def train_model():
     epochs = 10
     batch_size = 1024
     # data loading
-    train_dataset = QualityDataset (DATA_PATH, False, CONTEXT_COUNT)
+    train_dataset = QualityDataset (DATA_PATH, True, CONTEXT_COUNT)
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
@@ -44,13 +44,13 @@ def train_model():
     first_layer_size = 1
     # calling base count
     for i in range(0, first_layer_size):
-        custom_weight[i][tensor_length - 4] = torch.tensor(1.0437)
+        custom_weight[i][tensor_length - 4] = torch.tensor(-1.0437)
         # other base count
-        custom_weight[i][tensor_length - 3] = torch.tensor(-0.2337)
-        custom_weight[i][tensor_length - 2] = torch.tensor(-0.9995)
-        custom_weight[i][tensor_length - 1] = torch.tensor(-1.0)
+        custom_weight[i][tensor_length - 3] = torch.tensor(0.2337)
+        custom_weight[i][tensor_length - 2] = torch.tensor(0.9995)
+        custom_weight[i][tensor_length - 1] = torch.tensor(1.0)
         # pacbio qual
-        custom_weight[i][tensor_length - 5] = torch.tensor(1.0)
+        custom_weight[i][tensor_length - 5] = torch.tensor(-1.0)
     # put the weights in the model
     lr_model.linear.weight = torch.nn.Parameter(custom_weight)
 
@@ -83,7 +83,7 @@ def train_model():
         # save the trained model after each epoch
         torch.save({'epoch': epoch, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss}, MODEL_PATH)
         # reshuffle the data for the next epoch
-        #train_dataset.reshuffle()
+        train_dataset.reshuffle()
 
 # this function will evalute the model and aggregate the results (output of the model for wrong and right)
 def evaluate_model():
