@@ -14,6 +14,8 @@ class QualityDataset(torch.utils.data.Dataset):
             f.seek(0, 2)
             offset = f.tell()
             self.len = int((offset - 60) / 60) - 1
+        # test run
+        self.len = 10_000
         # load all data
         if self.shuffle_all:
             # make a shuffled index
