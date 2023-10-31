@@ -19,7 +19,8 @@ def main():
     #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt",0.85)
     #train_model()
     #util.write_errors_to_file("/data1/hifi_consensus/all_data/7_base_context/chr2_filtered.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt")
-    util.get_base_context_from_file("/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_3base_err.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_5base_err.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_7base_err.txt", 0.85)
+    util.filter_data_using_confident_germline_indel_depth("chr1", "/data1/hifi_consensus/all_data/7_base_context/chr1_pos.txt", "/data1/hifi_consensus/all_data/filters", "chr1", "/data1/hifi_consensus/all_data/7_base_context/chr1_pos_filtered.txt")
+    #util.get_base_context_from_file("/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_3base_err.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_5base_err.txt", "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_7base_err.txt", 0.85)
     return
 
 def view_result():

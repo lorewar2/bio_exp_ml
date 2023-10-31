@@ -214,7 +214,7 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
     with open(write_path, 'a') as fw:
         for index, line in enumerate(read_file):
             split_txt = line.split(" ")
-            if len(split_txt) != 11:
+            if len(split_txt) != 12:
                 continue
             current_location = int(split_txt[0])
             # iterate to correct area of confident region
@@ -238,12 +238,18 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
             # this is run if not filtered
             location = split_txt[0].zfill(9)
             three_base_ref = split_txt[1]
-            seven_base_cont = split_txt[3]
-            quality = split_txt[4].zfill(2)
-            base = split_txt[5]
-            count = split_txt[6].zfill(2)
+            seven_base_cont = split_txt[4]
+
+            position_string = split_txt[3]
+            position_split = position_string.split("/")
+            read_position = position_split[0].zfill(5)
+            read_length = position_split[1].zfill(5)
+
+            quality = split_txt[5].zfill(2)
+            base = split_txt[6]
+            count = split_txt[7].zfill(2)
             # get the parallel bases
-            parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
+            parallel_vec_s = [split_txt[8], split_txt[9], split_txt[10], split_txt[11]]
             char_remov = ["]", "[", ",", "\n"]
             for char in char_remov:
                 for index_s in range(len(parallel_vec_s)):
@@ -252,7 +258,7 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
             parallel_vec_mod = []
             for parallel in parallel_vec_s:
                 parallel_vec_mod.append(parallel.zfill(2))
-            modified_line = "{} {} : {} {} {} {} [{} {} {} {}]\n".format(location, three_base_ref, seven_base_cont, quality, base, count, parallel_vec_mod[0], parallel_vec_mod[1], parallel_vec_mod[2], parallel_vec_mod[3])
+            modified_line = "{} {} : {} / {} {} {} {} {} [{} {} {} {}]\n".format(location, three_base_ref, read_position, read_length, seven_base_cont, quality, base, count, parallel_vec_mod[0], parallel_vec_mod[1], parallel_vec_mod[2], parallel_vec_mod[3])
             modified_lines.append(modified_line)
             if index % 1_000_000 == 0:
                 for write_line in modified_lines:
