@@ -11,7 +11,7 @@ class quality_model_1_layer(torch.nn.Module):
         self.sig = torch.nn.Sigmoid()
     # define the forward function for prediction
     def forward(self, x):
-        x1 = self.linear(x[0:self.tensor_length - 5])
-        x2 = self.linear2(x[self.tensor_length - 5:])
+        x1 = self.linear(x[:, :, :self.tensor_length - 5])
+        x2 = self.linear2(x[:, :, self.tensor_length - 5:])
         result = self.sig(x1 + x2)
         return result

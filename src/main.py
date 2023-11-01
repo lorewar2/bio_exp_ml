@@ -24,7 +24,7 @@ def main():
 def train_model():
     tensor_length = pow(5, CONTEXT_COUNT) + 8
     # train parameters
-    learningRate = 0.00001
+    learningRate = 0.001
     epochs = 10
     batch_size = 1024
     # data loading
@@ -81,7 +81,7 @@ def train_model():
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     epoch = checkpoint['epoch']
     loss = checkpoint['loss']
-    
+
     num_batches = len(train_loader)
     # train loop
     for epoch in range(epochs):
