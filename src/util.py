@@ -316,12 +316,9 @@ def calculate_topology_score(calling_base, base_A_count, base_C_count, base_G_co
     #print(quality_score)
     return quality_score
 
-def calculate_topology_score_variable_prob(mutation_list, base_context, calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
+def calculate_topology_score_variable_prob (mutation_list, base_context, calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
     converted_number = convert_bases_to_bits(base_context, 7)
-    if mutation_list[converted_number] > 0:
-        prob = 0.7
-    else:
-        prob = 0.85
+    prob = mutation_list[converted_number]
     # read the file
     ln_prob_base_A = np.log(0.25)
     ln_prob_base_C = np.log(0.25)
@@ -354,8 +351,9 @@ def calculate_topology_score_variable_prob(mutation_list, base_context, calling_
     #print(quality_score)
     return quality_score
 
-def pipeline_calculate_topology_score_with_probability(read_path, prob):
-    
+def pipeline_calculate_topology_score_with_probability(read_path):
+    # get the prob list
+    mutation_list = get_mutation_probablility_array (7)
     # arrays to save the result
     error_counts = [0] * 300
     #all_counts = [0] * 300

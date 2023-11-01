@@ -18,7 +18,7 @@ def main():
     random.seed(3)
     np.random.seed(2)
     #train_model()
-    util.get_mutation_probablility_array (3)
+    util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt")
     return
 
 # this function will train the model using the train data
