@@ -4,7 +4,25 @@ import random
 import numpy as np
 import scipy.special
 
-HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_test.txt"
+HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_7base_err.txt"
+
+def get_mutation_probablility_array (context_count):
+    array_length = pow(5, context_count)
+    prob_array = [0.90] * array_length
+    with open(HIGHQUAL_FILE_PATH, 'r') as hr:
+        for index, line in enumerate(hr):
+            split_line = line.split(" ")
+            quality_array = [int(split_line[8].strip()), int(split_line[7]), int(split_line[6]), int(split_line[5]), int(split_line[4])]
+            temp_prob = 0.70
+            for quality in quality_array:
+                if quality > 0:
+                    prob_array[index] = temp_prob
+                    break
+                else:
+                    temp_prob += 0.05
+            print(temp_prob)
+    print(prob_array)
+    return prob_array
 
 def get_base_context_from_file(data_path, write_path1, write_path2, write_path3, prob):
     # read the correct file and take the indices in
@@ -337,10 +355,7 @@ def calculate_topology_score_variable_prob(mutation_list, base_context, calling_
     return quality_score
 
 def pipeline_calculate_topology_score_with_probability(read_path, prob):
-    mutation_list = []
-    with open(HIGHQUAL_FILE_PATH, 'r') as hr:
-        for index, line in enumerate(hr):
-            mutation_list.append(int(line.strip()))
+    
     # arrays to save the result
     error_counts = [0] * 300
     #all_counts = [0] * 300

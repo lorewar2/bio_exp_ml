@@ -17,7 +17,8 @@ def main():
     torch.manual_seed(1)
     random.seed(3)
     np.random.seed(2)
-    train_model()
+    #train_model()
+    util.get_mutation_probablility_array (3)
     return
 
 # this function will train the model using the train data
