@@ -319,6 +319,10 @@ def calculate_topology_score(calling_base, base_A_count, base_C_count, base_G_co
 def calculate_topology_score_variable_prob (mutation_list, base_context, calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
     converted_number = convert_bases_to_bits(base_context, 7)
     prob = mutation_list[converted_number]
+    print("===========================")
+    print(base_context)
+    print(prob)
+    print("===========================")
     # read the file
     ln_prob_base_A = np.log(0.25)
     ln_prob_base_C = np.log(0.25)
