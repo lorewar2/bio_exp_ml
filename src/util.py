@@ -10,8 +10,9 @@ def get_mutation_probablility_array (context_count):
     array_length = pow(5, context_count)
     prob_array = [0.90] * array_length
     with open(HIGHQUAL_FILE_PATH, 'r') as hr:
-        for index, line in enumerate(hr):
+        for _, line in enumerate(hr):
             split_line = line.split(" ")
+            index = int(split_line[0])
             quality_array = [int(split_line[8].strip()), int(split_line[7]), int(split_line[6]), int(split_line[5]), int(split_line[4])]
             temp_prob = 0.70
             for quality in quality_array:
@@ -319,10 +320,6 @@ def calculate_topology_score(calling_base, base_A_count, base_C_count, base_G_co
 def calculate_topology_score_variable_prob (mutation_list, base_context, calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
     converted_number = convert_bases_to_bits(base_context, 7)
     prob = mutation_list[converted_number]
-    print("===========================")
-    print(base_context)
-    print(prob)
-    print("===========================")
     # read the file
     ln_prob_base_A = np.log(0.25)
     ln_prob_base_C = np.log(0.25)
