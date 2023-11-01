@@ -58,13 +58,20 @@ def train_model():
     optimizer = torch.optim.SGD(lr_model.parameters(), lr = learningRate)
     criterion = torch.nn.MSELoss()
 
-    torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, MODEL_PATH)
+    #torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, MODEL_PATH)
     # # load the previous saved trained model
     checkpoint = torch.load(MODEL_PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     epoch = checkpoint['epoch']
     loss = checkpoint['loss']
+    # freeze the known parameters
+    for param in lr_model.parameters():
+        print(param)
+        print("=============")
+        param.requires_grad = False
+
+    return
     num_batches = len(train_loader)
     # train loop
     for epoch in range(epochs):
