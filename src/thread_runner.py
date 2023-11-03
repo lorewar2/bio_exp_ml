@@ -27,13 +27,13 @@ def pipeline_calculate_topology_score_with_probability(read_path, start, end, er
             f1.seek(index * 60)
             line = f1.readline()
             split_txt = line.split(" ")
-            if len(split_txt) != 14:
+            if len(split_txt) != 11: # 14
                 continue
-            base_context = [split_txt[6][0], split_txt[6][1], split_txt[6][2], split_txt[6][3], split_txt[6][4], split_txt[6][5], split_txt[6][6]]
-            call_base = split_txt[8]
+            base_context = [split_txt[3][0], split_txt[3][1], split_txt[3][2], split_txt[3][3], split_txt[3][4], split_txt[3][5], split_txt[3][6]] # 6 i
+            call_base = split_txt[5]
             ref_base = split_txt[1][1]
             # get parallel bases in float
-            parallel_vec_s = [split_txt[10], split_txt[11], split_txt[12], split_txt[13]]
+            parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
             char_remov = ["]", "[", ",", "\n"]
             for char in char_remov:
                 for index_s in range(len(parallel_vec_s)):
@@ -49,7 +49,6 @@ def pipeline_calculate_topology_score_with_probability(read_path, start, end, er
                 error_counts[(194 * thread_index) + recalculated_score] += 1
             if (index - start) % 100001 == 0:
                 print("Thread {} Progress {}/{}".format(thread_index, index - start, end - start))
-                break
     return
 
 # initialize variables
@@ -57,7 +56,7 @@ thread_number = 64
 error_counts = Array('i', 194 * thread_number)
 all_counts = Array('i', 194 * thread_number)
 threads = [None] * thread_number
-file_path = "/data1/hifi_consensus/all_data/7_base_context/chr1_pos_filtered.txt"
+file_path = "/data1/hifi_consensus/all_data/7_base_context/chr2_filtered.txt"
 # get the length
 total_len = 0
 with open(file_path) as f:
@@ -72,7 +71,7 @@ for thread_index in range(len(threads)):
     thread_end = int(thread_start + one_thread_allocation)
     # run the thread
     #threads[thread_index] = Process(target=print_pacbio_scores, args=(file_path, thread_start, thread_end, error_counts, all_counts, thread_index))
-    threads[thread_index] = Process(target=pipeline_calculate_topology_score_with_probability, args=(file_path, thread_start, thread_end, error_counts, all_counts, 0.85, thread_index))
+    threads[thread_index] = Process(target=pipeline_calculate_topology_score_with_probability, args=(file_path, thread_start, thread_end, error_counts, all_counts, thread_index))
     #threads[thread_index] = Thread(target=pipeline_calculate_topology_score_with_probability, args=(file_path, thread_start, thread_end, error_counts, all_counts, 0.85, thread_index))
     threads[thread_index].start()
 
