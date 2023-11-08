@@ -24,13 +24,13 @@ def get_mutation_probablility_array_prof (context_count):
             index = int(split_line[0])
             all_count = int(split_line[1])
             error_count = int(split_line[2].strip())
-            error_rates_array[index] = (error_count / all_count)
+            error_rates_array[index] = error_count / (all_count + 0.000000001)
             total_error_count += error_count
             total_all_count += all_count
-    average_error_rate = total_error_count / total_all_count
+    average_error_rate = total_error_count / (total_all_count + 0.000000001)
     # calculate the probablity and save it in array
     for index in range(0, array_length):
-        multiplier = error_rates_array[index] / average_error_rate
+        multiplier = error_rates_array[index] / (average_error_rate + 0.000000001)
         context_error_rate = normal_error_rate * multiplier
         context_correct_rate = 1 - context_error_rate
         prob_array[index] = context_correct_rate
