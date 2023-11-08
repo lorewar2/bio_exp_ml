@@ -4,11 +4,39 @@ import random
 import numpy as np
 import scipy.special
 
-CORRECT_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_all.txt"
-ERROR_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_err.txt"
-WRITE_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_final.txt"
+CORRECT_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5base_all.txt"
+ERROR_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5base_err.txt"
+WRITE_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5base_final.txt"
+READ_MUTATION_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_final.txt"
 
-
+def get_mutation_probablility_array_prof (context_count):
+    normal_correct_rate = 0.85
+    normal_error_rate = 1 - normal_correct_rate
+    array_length = pow(5, context_count)
+    prob_array = [0.90] * array_length
+    error_rates_array = [0.0] * array_length
+    # get the average error rate and all error rates for each context
+    total_error_count = 0
+    total_all_count = 0
+    with open(READ_MUTATION_PATH, 'r') as hr:
+        for _, line in enumerate(hr):
+            split_line = line.split(" ")
+            index = int(split_line[0])
+            all_count = int(split_line[1])
+            error_count = int(split_line[2].strip())
+            error_rates_array[index] = (error_count / all_count)
+            total_error_count += error_count
+            total_all_count += all_count
+    average_error_rate = total_error_count / total_all_count
+    # calculate the probablity and save it in array
+    for index in range(0, array_length):
+        multiplier = error_rates_array[index] / average_error_rate
+        context_error_rate = normal_error_rate * multiplier
+        context_correct_rate = 1 - context_error_rate
+        prob_array[index] = context_correct_rate
+    print(prob_array)
+    return prob_array
+    
 def fix_the_mutation_file(context_count):
     array_length = pow(5, context_count)
     error_array = [0] * array_length
@@ -33,26 +61,6 @@ def fix_the_mutation_file(context_count):
     return
 
 def get_mutation_probablility_array (context_count):
-    array_length = pow(5, context_count)
-    prob_array = [0.90] * array_length
-    with open(CORRECT_PATH, 'r') as hr:
-        for _, line in enumerate(hr):
-            split_line = line.split(" ")
-            index = int(split_line[0])
-            quality_array = [int(split_line[8].strip()), int(split_line[7]), int(split_line[6]), int(split_line[5]), int(split_line[4])]
-            temp_prob = 0.70
-            for quality in quality_array:
-                if quality > 0:
-                    prob_array[index] = temp_prob
-                    break
-                else:
-                    temp_prob += 0.05
-            print(temp_prob)
-    print(prob_array)
-    return prob_array
-
-def get_mutation_probablility_array_prof (context_count):
-    # to do, fix it
     array_length = pow(5, context_count)
     prob_array = [0.90] * array_length
     with open(CORRECT_PATH, 'r') as hr:
