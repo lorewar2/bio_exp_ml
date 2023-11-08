@@ -4,12 +4,54 @@ import random
 import numpy as np
 import scipy.special
 
-HIGHQUAL_FILE_PATH = "/data1/hifi_consensus/all_data/7_base_context/chr2_mutation_7base_err.txt"
+CORRECT_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_all.txt"
+ERROR_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_err.txt"
+
+
+def fix_the_mutation_file(context_count):
+    array_length = pow(5, context_count)
+    error_array = [0] * array_length
+    correct_array = [0] * array_length
+    with open(CORRECT_PATH, 'r') as hr:
+        for _, line in enumerate(hr):
+            split_line = line.split(" ")
+            index = int(split_line[0])
+            correct = int(split_line[2])
+            correct_array[index] = correct
+    with open(ERROR_PATH, 'r') as hr:
+        for _, line in enumerate(hr):
+            split_line = line.split(" ")
+            index = int(split_line[0])
+            error = int(split_line[2])
+            error_array[index] = error
+    print(error_array)
+    print(correct_array)
+    return
 
 def get_mutation_probablility_array (context_count):
     array_length = pow(5, context_count)
     prob_array = [0.90] * array_length
-    with open(HIGHQUAL_FILE_PATH, 'r') as hr:
+    with open(CORRECT_PATH, 'r') as hr:
+        for _, line in enumerate(hr):
+            split_line = line.split(" ")
+            index = int(split_line[0])
+            quality_array = [int(split_line[8].strip()), int(split_line[7]), int(split_line[6]), int(split_line[5]), int(split_line[4])]
+            temp_prob = 0.70
+            for quality in quality_array:
+                if quality > 0:
+                    prob_array[index] = temp_prob
+                    break
+                else:
+                    temp_prob += 0.05
+            print(temp_prob)
+    print(prob_array)
+    return prob_array
+
+def get_mutation_probablility_array_prof (context_count):
+    # to do, fix it
+    array_length = pow(5, context_count)
+    prob_array = [0.90] * array_length
+    with open(CORRECT_PATH, 'r') as hr:
         for _, line in enumerate(hr):
             split_line = line.split(" ")
             index = int(split_line[0])
