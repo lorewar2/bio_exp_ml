@@ -21,19 +21,19 @@ def print_pacbio_scores(read_path, start, end, error_counts, all_counts, thread_
 
 def pipeline_calculate_topology_score_with_probability(read_path, start, end, error_counts, all_counts, thread_index):
     # get the prob list
-    mutation_list = util.get_mutation_probablility_array(7)
+    mutation_list = util.get_mutation_probablility_array_prof(3)
     with open(read_path) as f1:
         for index in range(start, end):
             f1.seek(index * 60)
             line = f1.readline()
             split_txt = line.split(" ")
-            if len(split_txt) != 11: # 14
+            if len(split_txt) != 14: # 14
                 continue
-            base_context = [split_txt[3][0], split_txt[3][1], split_txt[3][2], split_txt[3][3], split_txt[3][4], split_txt[3][5], split_txt[3][6]] # 6 i
-            call_base = split_txt[5]
+            base_context = [split_txt[6][2], split_txt[6][3], split_txt[6][4]] # 6 i
+            call_base = split_txt[8]
             ref_base = split_txt[1][1]
             # get parallel bases in float
-            parallel_vec_s = [split_txt[7], split_txt[8], split_txt[9], split_txt[10]]
+            parallel_vec_s = [split_txt[10], split_txt[11], split_txt[12], split_txt[13]]
             char_remov = ["]", "[", ",", "\n"]
             for char in char_remov:
                 for index_s in range(len(parallel_vec_s)):
@@ -49,6 +49,7 @@ def pipeline_calculate_topology_score_with_probability(read_path, start, end, er
                 error_counts[(194 * thread_index) + recalculated_score] += 1
             if (index - start) % 100001 == 0:
                 print("Thread {} Progress {}/{}".format(thread_index, index - start, end - start))
+            break
     return
 
 # initialize variables
@@ -56,7 +57,7 @@ thread_number = 64
 error_counts = Array('i', 194 * thread_number)
 all_counts = Array('i', 194 * thread_number)
 threads = [None] * thread_number
-file_path = "/data1/hifi_consensus/all_data/7_base_context/chr2_filtered.txt"
+file_path = "/data1/hifi_consensus/processed_data/chr1/chr1_pos_filtered.txt"
 # get the length
 total_len = 0
 with open(file_path) as f:
