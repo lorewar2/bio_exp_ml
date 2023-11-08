@@ -6,6 +6,7 @@ import scipy.special
 
 CORRECT_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_all.txt"
 ERROR_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_err.txt"
+WRITE_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_final.txt"
 
 
 def fix_the_mutation_file(context_count):
@@ -26,6 +27,9 @@ def fix_the_mutation_file(context_count):
             error_array[index] = error
     print(error_array)
     print(correct_array)
+    with open(WRITE_PATH, 'a') as fw:
+        for index in range(0, array_length):
+            fw.write("{} {} {}\n".format(index, correct_array[index], error_array[index]))
     return
 
 def get_mutation_probablility_array (context_count):
