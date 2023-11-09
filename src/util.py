@@ -372,7 +372,7 @@ def calculate_topology_score(calling_base, base_A_count, base_C_count, base_G_co
     return quality_score
 
 def calculate_topology_score_variable_prob (mutation_list, base_context, calling_base, base_A_count, base_C_count, base_G_count, base_T_count, num_of_reads):
-    converted_number = convert_bases_to_bits(base_context, 7)
+    converted_number = convert_bases_to_bits(base_context, 3)
     prob = mutation_list[converted_number]
     # read the file
     ln_prob_base_A = np.log(0.25)
@@ -380,10 +380,10 @@ def calculate_topology_score_variable_prob (mutation_list, base_context, calling
     ln_prob_base_G = np.log(0.25)
     ln_prob_base_T = np.log(0.25)
     
-    ln_prob_data_given_A = np.log(calculate_binomial(num_of_reads, base_A_count, prob))
-    ln_prob_data_given_C = np.log(calculate_binomial(num_of_reads, base_C_count, prob))
-    ln_prob_data_given_G = np.log(calculate_binomial(num_of_reads, base_G_count, prob))
-    ln_prob_data_given_T = np.log(calculate_binomial(num_of_reads, base_T_count, prob))
+    ln_prob_data_given_A = np.log(calculate_binomial(num_of_reads, base_A_count, prob) + 0.000000000000000000001)
+    ln_prob_data_given_C = np.log(calculate_binomial(num_of_reads, base_C_count, prob) + 0.000000000000000000001)
+    ln_prob_data_given_G = np.log(calculate_binomial(num_of_reads, base_G_count, prob) + 0.000000000000000000001)
+    ln_prob_data_given_T = np.log(calculate_binomial(num_of_reads, base_T_count, prob) + 0.000000000000000000001)
 
     ln_sum_of_probabilities = ln_prob_data_given_A + ln_prob_base_A
     ln_sum_of_probabilities = np.logaddexp(ln_sum_of_probabilities, ln_prob_data_given_C + ln_prob_base_C)
@@ -403,6 +403,8 @@ def calculate_topology_score_variable_prob (mutation_list, base_context, calling
 
     error_rate = 1.0 - correct_rate
     quality_score = (-10.00) * np.log10(error_rate + 0.000000000000000000001)
+    if quality_score > 190:
+        quality_score = 190
     #print(quality_score)
     return quality_score
 
