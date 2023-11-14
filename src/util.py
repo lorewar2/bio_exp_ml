@@ -24,10 +24,10 @@ def concancate_quality_scores_from_files ():
                 split_line = cleaned_line.split(" ")
                 if line_index == 0:
                     for array_index in range(0, 94):
-                        correct_count[array_index] = int(split_line[array_index])
+                        correct_count[array_index] += int(split_line[array_index])
                 elif line_index == 1:
                     for array_index in range(0, 94):
-                        error_count[array_index] = int(split_line[array_index])
+                        error_count[array_index] += int(split_line[array_index])
     print(correct_count)
     print(error_count)
     return
