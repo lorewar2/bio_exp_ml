@@ -9,6 +9,24 @@ ERROR_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5
 WRITE_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5base_final.txt"
 READ_MUTATION_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_final.txt"
 
+def concancate_quality_scores_from_files ():
+    correct_count = [0] * 94
+    error_count = [0] * 94
+    for index in range(0, 64):
+        current_path = "/data1/hifi_consensus/deepresult/{}_data.txt".format(index)
+        with open(current_path, 'r') as hr:
+            for line_index, line in enumerate(hr):
+                cleaned_line = line
+                char_remov = ["]", "[", ",", "\n"]
+                for char in char_remov:
+                    cleaned_line = cleaned_line.replace(char, "")
+                line_split = line.split(" ")
+                print(cleaned_line)
+                #if line_index == 0:
+                    
+                #elif line_index == 1:
+    return
+
 def get_mutation_probablility_array_prof (context_count):
     normal_correct_rate = 0.85
     normal_error_rate = 1 - normal_correct_rate
