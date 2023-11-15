@@ -310,7 +310,7 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
     with open(write_path, 'a') as fw:
         for index, line in enumerate(read_file):
             split_txt = line.split(" ")
-            if len(split_txt) != 12:
+            if len(split_txt) != 18:
                 continue
             current_location = int(split_txt[0])
             # iterate to correct area of confident region
@@ -332,29 +332,30 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
                 #print("Germline variant location {} == {} +- {}".format(current_location, germline_locations[germline_index][0], germline_locations[germline_index][1]))
                 continue
             # this is run if not filtered
-            location = split_txt[0].zfill(9)
-            three_base_ref = split_txt[1]
-            seven_base_cont = split_txt[4]
-
-            position_string = split_txt[3]
-            position_split = position_string.split("/")
-            read_position = position_split[0].zfill(5)
-            read_length = position_split[1].zfill(5)
-
-            quality = split_txt[5].zfill(2)
-            base = split_txt[6]
-            count = split_txt[7].zfill(2)
-            # get the parallel bases
-            parallel_vec_s = [split_txt[8], split_txt[9], split_txt[10], split_txt[11]]
+            # filter the line
             char_remov = ["]", "[", ",", "\n"]
+            stripped_line = line
             for char in char_remov:
-                for index_s in range(len(parallel_vec_s)):
-                    temp = parallel_vec_s[index_s].replace(char, "")
-                    parallel_vec_s[index_s] = temp
-            parallel_vec_mod = []
-            for parallel in parallel_vec_s:
-                parallel_vec_mod.append(parallel.zfill(2))
-            modified_line = "{} {} : {} / {} {} {} {} {} [{} {} {} {}]\n".format(location, three_base_ref, read_position, read_length, seven_base_cont, quality, base, count, parallel_vec_mod[0], parallel_vec_mod[1], parallel_vec_mod[2], parallel_vec_mod[3])
+                stripped_line = stripped_line.replace(char, "")
+            split_txt = stripped_line.split(" ")
+            location = split_txt[0].zfill(9)
+            seven_base_ref = split_txt[1]
+            quality = split_txt[2].zfill(2)
+            read_position = split_txt[4].zfill(5)
+            read_length = split_txt[5].zfill(5)
+            seven_base_cont = split_txt[6]
+            base = split_txt[7]
+            sn1 = split_txt[8].zfill(7)
+            sn2 = split_txt[9].zfill(8)
+            sn3 = split_txt[10].zfill(8)
+            sn4 = split_txt[11].zfill(8)
+            pw = split_txt[12].zfill(2)
+            ip = split_txt[13].zfill(2)
+            parallel1 = split_txt[14].zfill(2)
+            parallel2 = split_txt[15].zfill(2)
+            parallel3 = split_txt[16].zfill(2)
+            parallel4 = split_txt[17].zfill(2)
+            modified_line = "{} {} {} : {} {} {} {} [{} {} {} {}] {} {} [{} {} {} {}]\n".format(location, seven_base_ref, quality, read_position, read_length, seven_base_cont, base, sn1, sn2, sn3, sn4, pw, ip, parallel1, parallel2, parallel3, parallel4)
             modified_lines.append(modified_line)
             if index % 1_000_000 == 0:
                 for write_line in modified_lines:
