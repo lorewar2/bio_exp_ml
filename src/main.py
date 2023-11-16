@@ -20,7 +20,8 @@ def main():
     #train_model()
     #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt")
     #util.get_mutation_probablility_array_prof (3)
-    util.filter_data_using_confident_germline_indel_depth("chr2", "/data1/hifi_consensus/processed_data/chr2_ip_pw.txt", "/data1/hifi_consensus/processed_data/filters", "/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt")
+    util.filter_data_deep_consensus("chr2", "/data1/hifi_consensus/chr2_deep.txt", "/data1/hifi_consensus/processed_data/filters", "/data1/hifi_consensus/chr2_deep_filtered.txt")
+    #util.filter_data_using_confident_germline_indel_depth("chr2", "/data1/hifi_consensus/processed_data/chr2_ip_pw.txt", "/data1/hifi_consensus/processed_data/filters", "/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt")
     #util.concancate_quality_scores_from_files()
     return
 
