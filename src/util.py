@@ -40,7 +40,6 @@ def get_summary_ip_pw(read_path):
             correct_pw_sum += pw
         if index % 100_000:
             print("current line {}".format(index))
-            break
     correct_pw_avg = correct_pw_sum / len(correct_pw_array)
     error_pw_avg = error_pw_sum / len(error_pw_array)
     correct_ip_avg = correct_ip_sum / len(correct_ip_array)
@@ -53,11 +52,11 @@ def get_summary_ip_pw(read_path):
     correct_pw_array.sort()
     error_pw_array.sort()
     print("Correct summary:")
-    print("pw avg:{} max:{} min:{} median:{} 1qua:{} 3qua:{} IQR:{}".format(correct_pw_avg, correct_pw_array[len(correct_pw_array) - 1]), correct_pw_array[0], correct_pw_array[int(len(correct_pw_array)/2)], correct_pw_array[int(len(correct_pw_array)/4)], correct_pw_array[int(3 * len(correct_pw_array)/4)], correct_pw_array[int(3 * len(correct_pw_array)/4)] - correct_pw_array[int(len(correct_pw_array)/4)])
-    print("pw avg:{} max:{} min:{} median:{} 1qua:{} 3qua:{} IQR:{}".format(correct_ip_avg, correct_ip_array[len(correct_ip_array) - 1]), correct_ip_array[0], correct_ip_array[int(len(correct_ip_array)/2)], correct_ip_array[int(len(correct_ip_array)/4)], correct_ip_array[int(3 * len(correct_ip_array)/4)], correct_ip_array[int(3 * len(correct_ip_array)/4)] - correct_ip_array[int(len(correct_ip_array)/4)])
+    print("pw avg:{} max:{} min:{} median:{}".format(correct_pw_avg, correct_pw_array[len(correct_pw_array) - 1]), correct_pw_array[0], correct_pw_array[int(len(correct_pw_array)/2)])
+    print("pw avg:{} max:{} min:{} median:{}".format(correct_ip_avg, correct_ip_array[len(correct_ip_array) - 1]), correct_ip_array[0], correct_ip_array[int(len(correct_ip_array)/2)])
     print("Error summary:")
-    print("pw avg:{} max:{} min:{} median:{} 1qua:{} 3qua:{} IQR:{}".format(error_pw_avg, error_pw_array[len(error_pw_array) - 1]), error_pw_array[0], error_pw_array[int(len(error_pw_array)/2)], error_pw_array[int(len(error_pw_array)/4)], error_pw_array[int(3 * len(error_pw_array)/4)], error_pw_array[int(3 * len(error_pw_array)/4)] - error_pw_array[int(len(error_pw_array)/4)])
-    print("pw avg:{} max:{} min:{} median:{} 1qua:{} 3qua:{} IQR:{}".format(error_ip_avg, error_ip_array[len(error_ip_array) - 1]), error_ip_array[0], error_ip_array[int(len(error_ip_array)/2)], error_ip_array[int(len(error_ip_array)/4)], error_ip_array[int(3 * len(error_ip_array)/4)], error_ip_array[int(3 * len(error_ip_array)/4)] - error_ip_array[int(len(error_ip_array)/4)])
+    print("pw avg:{} max:{} min:{} median:{}".format(error_pw_avg, error_pw_array[len(error_pw_array) - 1]), error_pw_array[0], error_pw_array[int(len(error_pw_array)/2)])
+    print("pw avg:{} max:{} min:{} median:{}".format(error_ip_avg, error_ip_array[len(error_ip_array) - 1]), error_ip_array[0], error_ip_array[int(len(error_ip_array)/2)])
     print(read_path)
     return
 
