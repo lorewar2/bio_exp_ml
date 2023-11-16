@@ -9,6 +9,27 @@ ERROR_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5
 WRITE_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5base_final.txt"
 READ_MUTATION_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_final.txt"
 
+def make_error_list(read_path, write_path):
+    # arrays to save the result
+    file = open(read_path, "r")
+    modified_lines = []
+    with open(write_path, 'a') as fw:
+        for index, line in enumerate(file):
+            split_txt = line.split(" ")
+            if len(split_txt) != 18:
+                continue
+            ref_base = split_txt[1][3]
+            call_base = split_txt[6][3]
+            if ref_base != call_base:
+                modified_lines.append(line)
+            if index % 1_000_000 == 0:
+                for write_line in modified_lines:
+                    fw.write(write_line)
+                modified_lines.clear()
+                print("processed {} records,".format(index))
+    print(read_path)
+    return
+
 def print_deep_scores(read_path):
     # arrays to save the result
     error_counts = [0] * 94
@@ -20,7 +41,7 @@ def print_deep_scores(read_path):
             continue
         base_quality = int(split_txt[2])
         ref_base = split_txt[1]
-        call_base = split_txt[4]
+        call_base = split_txt[4].strip()
         all_counts[base_quality] += 1
         if ref_base != call_base:
             error_counts[base_quality] += 1
