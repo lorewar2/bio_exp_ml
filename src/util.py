@@ -9,24 +9,55 @@ ERROR_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5
 WRITE_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5base_final.txt"
 READ_MUTATION_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_final.txt"
 
-def make_error_list(read_path, write_path):
+def get_summary_ip_pw(read_path):
+    error_ip_array = []
+    error_ip_sum = 0
+    error_pw_array = []
+    error_pw_sum = 0
+    correct_ip_array = []
+    correct_ip_sum = 0
+    correct_pw_array = []
+    correct_pw_sum = 0
     # arrays to save the result
     file = open(read_path, "r")
-    modified_lines = []
-    with open(write_path, 'a') as fw:
-        for index, line in enumerate(file):
-            split_txt = line.split(" ")
-            if len(split_txt) != 18:
-                continue
-            ref_base = split_txt[1][3]
-            call_base = split_txt[6][3]
-            if ref_base != call_base:
-                modified_lines.append(line)
-            if index % 1_000_000 == 0:
-                for write_line in modified_lines:
-                    fw.write(write_line)
-                modified_lines.clear()
-                print("processed {} records,".format(index))
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        if len(split_txt) != 18:
+            continue
+        ip = int(split_txt[12])
+        pw = int(split_txt[13])
+        ref_base = split_txt[1][3]
+        call_base = split_txt[6][3]
+        if ref_base != call_base:
+            error_ip_array.append(ip)
+            error_ip_sum += ip
+            error_pw_array.append(pw)
+            error_pw_sum += pw
+        else:
+            correct_ip_array.append(ip)
+            correct_ip_sum += ip
+            correct_pw_array.append(pw)
+            correct_pw_sum += pw
+        if index % 100_000:
+            print("current line {}".format(index))
+            break
+    correct_pw_avg = correct_pw_sum / len(correct_pw_array)
+    error_pw_avg = error_pw_sum / len(error_pw_array)
+    correct_ip_avg = correct_ip_sum / len(correct_ip_array)
+    error_ip_avg = error_ip_sum / len(error_ip_array)
+    print("correct: pw avg: {} ip avg: {}".format(correct_pw_avg, correct_ip_avg))
+    print("error: pw avg: {} ip avg: {}".format(error_pw_avg, error_ip_avg))
+    print("sorting arrays...")
+    correct_ip_array.sort()
+    error_ip_array.sort()
+    correct_pw_array.sort()
+    error_pw_array.sort()
+    print("Correct summary:")
+    print("pw avg:{} max:{} min:{} median:{} 1qua:{} 3qua:{} IQR:{}".format(correct_pw_avg, correct_pw_array[len(correct_pw_array) - 1]), correct_pw_array[0], correct_pw_array[int(len(correct_pw_array)/2)], correct_pw_array[int(len(correct_pw_array)/4)], correct_pw_array[int(3 * len(correct_pw_array)/4)], correct_pw_array[int(3 * len(correct_pw_array)/4)] - correct_pw_array[int(len(correct_pw_array)/4)])
+    print("pw avg:{} max:{} min:{} median:{} 1qua:{} 3qua:{} IQR:{}".format(correct_ip_avg, correct_ip_array[len(correct_ip_array) - 1]), correct_ip_array[0], correct_ip_array[int(len(correct_ip_array)/2)], correct_ip_array[int(len(correct_ip_array)/4)], correct_ip_array[int(3 * len(correct_ip_array)/4)], correct_ip_array[int(3 * len(correct_ip_array)/4)] - correct_ip_array[int(len(correct_ip_array)/4)])
+    print("Error summary:")
+    print("pw avg:{} max:{} min:{} median:{} 1qua:{} 3qua:{} IQR:{}".format(error_pw_avg, error_pw_array[len(error_pw_array) - 1]), error_pw_array[0], error_pw_array[int(len(error_pw_array)/2)], error_pw_array[int(len(error_pw_array)/4)], error_pw_array[int(3 * len(error_pw_array)/4)], error_pw_array[int(3 * len(error_pw_array)/4)] - error_pw_array[int(len(error_pw_array)/4)])
+    print("pw avg:{} max:{} min:{} median:{} 1qua:{} 3qua:{} IQR:{}".format(error_ip_avg, error_ip_array[len(error_ip_array) - 1]), error_ip_array[0], error_ip_array[int(len(error_ip_array)/2)], error_ip_array[int(len(error_ip_array)/4)], error_ip_array[int(3 * len(error_ip_array)/4)], error_ip_array[int(3 * len(error_ip_array)/4)] - error_ip_array[int(len(error_ip_array)/4)])
     print(read_path)
     return
 

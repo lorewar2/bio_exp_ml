@@ -23,8 +23,9 @@ def main():
     #util.filter_data_deep_consensus("chr2", "/data1/hifi_consensus/chr2_deep.txt", "/data1/hifi_consensus/processed_data/filters", "/data1/hifi_consensus/chr2_deep_filtered.txt")
     #util.filter_data_using_confident_germline_indel_depth("chr2", "/data1/hifi_consensus/processed_data/chr2_ip_pw.txt", "/data1/hifi_consensus/processed_data/filters", "/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt")
     #util.concancate_quality_scores_from_files()
-    util.make_error_list("/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt", "/data1/hifi_consensus/processed_data/chr2_ip_pw_errors.txt")
+    #util.make_error_list("/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt", "/data1/hifi_consensus/processed_data/chr2_ip_pw_errors.txt")
     #util.print_deep_scores("/data1/hifi_consensus/chr2_deep_filtered.txt")
+    util.get_summary_ip_pw("/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt")
     return
 
 # this function will train the model using the train data
