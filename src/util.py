@@ -52,11 +52,11 @@ def get_summary_ip_pw(read_path):
     correct_pw_array.sort()
     error_pw_array.sort()
     print("Correct summary:")
-    print("pw avg:{} max:{} min:{} median:{}".format(correct_pw_avg, correct_pw_array[len(correct_pw_array) - 1]), correct_pw_array[0], correct_pw_array[int(len(correct_pw_array)/2)])
-    print("pw avg:{} max:{} min:{} median:{}".format(correct_ip_avg, correct_ip_array[len(correct_ip_array) - 1]), correct_ip_array[0], correct_ip_array[int(len(correct_ip_array)/2)])
+    print("pw avg:{} max:{} min:{} median:{}".format(correct_pw_avg, correct_pw_array[len(correct_pw_array) - 1], correct_pw_array[0], correct_pw_array[int(len(correct_pw_array)/2)]))
+    print("pw avg:{} max:{} min:{} median:{}".format(correct_ip_avg, correct_ip_array[len(correct_ip_array) - 1], correct_ip_array[0], correct_ip_array[int(len(correct_ip_array)/2)]))
     print("Error summary:")
-    print("pw avg:{} max:{} min:{} median:{}".format(error_pw_avg, error_pw_array[len(error_pw_array) - 1]), error_pw_array[0], error_pw_array[int(len(error_pw_array)/2)])
-    print("pw avg:{} max:{} min:{} median:{}".format(error_ip_avg, error_ip_array[len(error_ip_array) - 1]), error_ip_array[0], error_ip_array[int(len(error_ip_array)/2)])
+    print("pw avg:{} max:{} min:{} median:{}".format(error_pw_avg, error_pw_array[len(error_pw_array) - 1], error_pw_array[0], error_pw_array[int(len(error_pw_array)/2)]))
+    print("pw avg:{} max:{} min:{} median:{}".format(error_ip_avg, error_ip_array[len(error_ip_array) - 1], error_ip_array[0], error_ip_array[int(len(error_ip_array)/2)]))
     print(read_path)
     return
 
