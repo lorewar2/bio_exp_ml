@@ -9,6 +9,29 @@ ERROR_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5
 WRITE_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5base_final.txt"
 READ_MUTATION_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_final.txt"
 
+def print_deep_scores(read_path):
+    # arrays to save the result
+    error_counts = [0] * 94
+    all_counts = [0] * 94
+    file = open(read_path, "r")
+    for index, line in enumerate(file):
+        split_txt = line.split(" ")
+        if len(split_txt) != 5:
+            continue
+        base_quality = int(split_txt[2])
+        ref_base = split_txt[1]
+        call_base = split_txt[4]
+        all_counts[base_quality] += 1
+        if ref_base != call_base:
+            error_counts[base_quality] += 1
+        if index % 100000 == 0:
+            print("Running line {}".format(index))
+            break
+    print(error_counts)
+    print(all_counts)
+    print(read_path)
+    return
+
 def filter_data_deep_consensus(chromosone, data_path, filter_path, write_path):
     # ALL DATA IN ORDER
     # read the confident file put relavant chromosone data in array
