@@ -8,12 +8,12 @@ class QualityDataset(torch.utils.data.Dataset):
         self.file_loc = file_loc
         self.shuffle_all = shuffle_all
         self.base_context_count = base_context_count
-        self.tensor_length = pow(5, base_context_count) + 8
+        self.tensor_length = pow(5, base_context_count) + 17
         # get len and save it
         with open(file_loc) as f:
             f.seek(0, 2)
             offset = f.tell()
-            self.len = int((offset - 60) / 60) - 1
+            self.len = int((offset - 106) / 106) - 1
         # load all data
         if self.shuffle_all:
             # make a shuffled index
@@ -38,14 +38,14 @@ class QualityDataset(torch.utils.data.Dataset):
         return input_tensor, label_tensor
 
     def retrieve_item_from_disk(self, index):
-        # search the index file to file the location # index offset is 60
+        # search the index file to file the location # index offset is 106
         retrieved_line = ""
         with open(self.file_loc) as f1:
-            f1.seek(index * 60)
+            f1.seek(index * 106)
             retrieved_line = f1.readline()
         split_txt = retrieved_line.split(" ")
         # case of corrupted data $dont use this$ 
-        if len(split_txt) != 14:
+        if len(split_txt) != 18:
             return torch.zeros(1, self.tensor_length), torch.tensor([[0.00]])
         # get the required base context
         if self.base_context_count == 3:
@@ -60,7 +60,7 @@ class QualityDataset(torch.utils.data.Dataset):
         hot_encoded[converted_number] = 1.0
 
         # get the read length and position information
-        read_position = int(split_txt[3])
+        read_position = int(split_txt[4])
         read_len = int(split_txt[5])
 
         base_in_last_100 = 0.0
@@ -75,9 +75,9 @@ class QualityDataset(torch.utils.data.Dataset):
             base_in_last_100 = 1.0
 
         # get quality in float
-        quality = float(split_txt[7]) / 100
+        quality = float(split_txt[2]) / 100
         # get the num of parallel bases in float
-        parallel_vec_s = [split_txt[10], split_txt[11], split_txt[12], split_txt[13]]
+        parallel_vec_s = [split_txt[14], split_txt[15], split_txt[16], split_txt[17]]
         char_remov = ["]", "[", ",", "\n"]
         for char in char_remov:
             for index_s in range(len(parallel_vec_s)):
@@ -86,6 +86,12 @@ class QualityDataset(torch.utils.data.Dataset):
         parallel_vec_f = []
         for parallel in parallel_vec_s:
             parallel_vec_f.append(float(parallel))
+
+        # check the state of the poa
+
+        # retrieve sn
+
+        # get the required sn details
 
         # rearrange so that the calling base num first and rest in decending order
         sorted_vec = self.rearrange_sort_parallel_bases(parallel_vec_f, split_txt[8])
@@ -100,6 +106,10 @@ class QualityDataset(torch.utils.data.Dataset):
             label_tensor = torch.tensor([[1.00]])
         return input_tensor, label_tensor
 
+    def clean_string_get_array(self, string):
+        # to do
+        return
+    
     def rearrange_sort_parallel_bases(self, parallel_vec, base):
         if base == "A":
             selected_base = parallel_vec[0]

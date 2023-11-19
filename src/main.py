@@ -10,7 +10,8 @@ import util
 
 DATA_PATH = "/data1/hifi_consensus/all_data/7_base_context/chr1_pos_filtered.txt"
 MODEL_PATH = "./result/model/1_layered_model_context_pos.pt"
-CONTEXT_COUNT = 5
+CONTEXT_COUNT = 3
+EXTRA_COUNT = 20
 
 def main():
     # set the seed
@@ -30,7 +31,7 @@ def main():
 
 # this function will train the model using the train data
 def train_model():
-    tensor_length = pow(5, CONTEXT_COUNT) + 8
+    tensor_length = pow(5, CONTEXT_COUNT) + EXTRA_COUNT
     # train parameters
     learningRate = 0.001
     epochs = 10
@@ -45,38 +46,22 @@ def train_model():
         drop_last = True
     )
     # build the model object
-    lr_model = model.quality_model_1_layer(CONTEXT_COUNT)
-
-    # # define custom weights
-    # custom_weight = torch.rand(lr_model.linear.weight.shape)
-    # first_layer_size = 1
-    # # calling base count
-    # for i in range(0, first_layer_size):
-    #     custom_weight[i][tensor_length - 4] = torch.tensor(-1.0437)
-    #     # other base count
-    #     custom_weight[i][tensor_length - 3] = torch.tensor(0.2337)
-    #     custom_weight[i][tensor_length - 2] = torch.tensor(0.9995)
-    #     custom_weight[i][tensor_length - 1] = torch.tensor(1.0)
-    #     # pacbio qual
-    #     custom_weight[i][tensor_length - 5] = torch.tensor(-1.0)
-    # # put the weights in the model
-    # lr_model.linear.weight = torch.nn.Parameter(custom_weight)
+    lr_model = model.quality_model_1_layer(CONTEXT_COUNT, EXTRA_COUNT)
 
     # define custom weights
-    custom_weight = torch.rand(lr_model.linear2.weight.shape)
-    first_layer_size = 1
+    custom_weight = torch.rand(lr_model.linear.weight.shape)
+    first_layer_size = tensor_length
     # calling base count
     for i in range(0, first_layer_size):
-        custom_weight[i][1] = torch.tensor(-1.0437)
+        custom_weight[i][tensor_length - 4] = torch.tensor(-1.0437)
         # other base count
-        custom_weight[i][2] = torch.tensor(0.2337)
-        custom_weight[i][3] = torch.tensor(0.9995)
-        custom_weight[i][4] = torch.tensor(1.0)
+        custom_weight[i][tensor_length - 3] = torch.tensor(0.2337)
+        custom_weight[i][tensor_length - 2] = torch.tensor(0.9995)
+        custom_weight[i][tensor_length - 1] = torch.tensor(1.0)
         # pacbio qual
-        custom_weight[i][0] = torch.tensor(-1.0)
+        custom_weight[i][tensor_length - 5] = torch.tensor(-1.0)
     # put the weights in the model
-    lr_model.linear2.weight = torch.nn.Parameter(custom_weight)
-    lr_model.linear2.weight.requires_grad_ = False
+    lr_model.linear.weight = torch.nn.Parameter(custom_weight)
 
     # optimizer
     optimizer = torch.optim.SGD(lr_model.parameters(), lr = learningRate)
@@ -112,7 +97,7 @@ def train_model():
 
 # this function will evalute the model and aggregate the results (output of the model for wrong and right)
 def evaluate_model():
-    tensor_length = pow(5, CONTEXT_COUNT) + 8
+    tensor_length = pow(5, CONTEXT_COUNT) + EXTRA_COUNT
     # arrays to save the result
     error_counts = [0] * 93
     all_counts = [0] * 93
@@ -128,7 +113,7 @@ def evaluate_model():
     )
     eval_len = len(eval_loader)
     # load the model
-    lr_model = model.quality_model_1_layer(CONTEXT_COUNT)
+    lr_model = model.quality_model_1_layer(CONTEXT_COUNT, EXTRA_COUNT)
     checkpoint = torch.load(MODEL_PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
     # run the data
@@ -149,8 +134,8 @@ def evaluate_model():
 
 def view_result():
     # show the model parameters
-    lr_model = model.quality_model_1_layer(CONTEXT_COUNT)
-    tensor_length = pow(5, CONTEXT_COUNT) + 8
+    lr_model = model.quality_model_1_layer(CONTEXT_COUNT, EXTRA_COUNT)
+    tensor_length = pow(5, CONTEXT_COUNT) + EXTRA_COUNT
     checkpoint = torch.load(MODEL_PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
     for name, param in lr_model.named_parameters():
@@ -200,9 +185,9 @@ def view_result():
 
 
 def print_result_tensor(obtained_tensor):
-    tensor_length = pow(5, CONTEXT_COUNT) + 8
+    tensor_length = pow(5, CONTEXT_COUNT) + 15
     # get the three base context from first 64 bits
-    for idx, value in enumerate(obtained_tensor[0: tensor_length - 8]):
+    for idx, value in enumerate(obtained_tensor[0: tensor_length - 18]):
         if value > 0.5:
             converted_number = idx
     base_context = util.convert_bits_to_bases(converted_number, CONTEXT_COUNT)
