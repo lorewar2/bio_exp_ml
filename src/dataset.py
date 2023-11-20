@@ -87,6 +87,10 @@ class QualityDataset(torch.utils.data.Dataset):
     def process_sn_info(self, three_base_context, calling_base, sn_vec):
         if calling_base == "X":
             calling_base = three_base_context[1]
+        if three_base_context[0] == "X":
+            three_base_context = [calling_base, calling_base, calling_base]
+        if three_base_context[2] == "X":
+            three_base_context = [calling_base, calling_base, calling_base]
         # base sn
         base_sn = sn_vec[util.get_base_to_int(calling_base)]
         # left base sn diff
