@@ -8,8 +8,8 @@ import random
 import math
 import util
 
-DATA_PATH = "/data1/hifi_consensus/all_data/7_base_context/chr1_pos_filtered.txt"
-MODEL_PATH = "./result/model/1_layered_model_context_pos.pt"
+DATA_PATH = "/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt"
+MODEL_PATH = "./result/model/multi_layered_model.pt"
 CONTEXT_COUNT = 3
 EXTRA_COUNT = 20
 
@@ -18,15 +18,7 @@ def main():
     torch.manual_seed(1)
     random.seed(3)
     np.random.seed(2)
-    #train_model()
-    #util.pipeline_calculate_topology_score_with_probability("/data1/hifi_consensus/all_data/7_base_context/chr2_errors.txt")
-    #util.get_mutation_probablility_array_prof (3)
-    #util.filter_data_deep_consensus("chr2", "/data1/hifi_consensus/chr2_deep.txt", "/data1/hifi_consensus/processed_data/filters", "/data1/hifi_consensus/chr2_deep_filtered.txt")
-    #util.filter_data_using_confident_germline_indel_depth("chr2", "/data1/hifi_consensus/processed_data/chr2_ip_pw.txt", "/data1/hifi_consensus/processed_data/filters", "/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt")
-    #util.concancate_quality_scores_from_files()
-    #util.make_error_list("/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt", "/data1/hifi_consensus/processed_data/chr2_ip_pw_errors.txt")
-    #util.print_deep_scores("/data1/hifi_consensus/chr2_deep_filtered.txt")
-    util.get_summary_ip_pw("/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt")
+    train_model()
     return
 
 # this function will train the model using the train data
@@ -41,7 +33,7 @@ def train_model():
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
-        num_workers = 64,
+        num_workers = 1,
         shuffle = False,
         drop_last = True
     )

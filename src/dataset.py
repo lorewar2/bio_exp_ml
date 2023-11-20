@@ -58,57 +58,79 @@ class QualityDataset(torch.utils.data.Dataset):
         converted_number = util.convert_bases_to_bits(base_context, self.base_context_count)
         hot_encoded = [0.0] * pow(5, self.base_context_count)
         hot_encoded[converted_number] = 1.0
-
         # get the read length and position information
-        read_position = int(split_txt[4])
-        read_len = int(split_txt[5])
-
-        base_in_last_100 = 0.0
-        base_in_last_10 = 0.0
-        base_in_last_3 = 0.0
-
-        if (read_position >= read_len - 3) or (read_position <= 3):
-            base_in_last_3 = 1.0
-        if (read_position >= read_len - 10) or (read_position <= 10):
-            base_in_last_10 = 1.0
-        if (read_position >= read_len - 100) or (read_position <= 100):
-            base_in_last_100 = 1.0
-
+        base_pos_info = self.read_len_info(int(split_txt[4]), int(split_txt[5]))
         # get quality in float
         quality = float(split_txt[2]) / 100
         # get the num of parallel bases in float
-        parallel_vec_s = [split_txt[14], split_txt[15], split_txt[16], split_txt[17]]
-        char_remov = ["]", "[", ",", "\n"]
-        for char in char_remov:
-            for index_s in range(len(parallel_vec_s)):
-                temp = parallel_vec_s[index_s].replace(char, "")
-                parallel_vec_s[index_s] = temp
-        parallel_vec_f = []
-        for parallel in parallel_vec_s:
-            parallel_vec_f.append(float(parallel))
-
-        # check the state of the poa
-
+        parallel_vec_f = self.clean_string_get_array([split_txt[14], split_txt[15], split_txt[16], split_txt[17]])
+        # get the calling base and the state if opao
+        calling_base, poa_state = self.get_state_info(split_txt[7])
         # retrieve sn
-
+        sn_vec_f = self.clean_string_get_array([split_txt[8], split_txt[9], split_txt[10], split_txt[11]])
         # get the required sn details
-
+        sn_info = self.process_sn_info([split_txt[6][2], split_txt[6][3], split_txt[6][4]], calling_base, sn_vec_f)
+        # get pw and ip
+        ip = float(split_txt[12])
+        pw = float(split_txt[13])
         # rearrange so that the calling base num first and rest in decending order
-        sorted_vec = self.rearrange_sort_parallel_bases(parallel_vec_f, split_txt[8])
-
+        sorted_vec = self.rearrange_sort_parallel_bases(parallel_vec_f, calling_base)
         # make and append to the input tensor,
-        input_tensor = torch.tensor([hot_encoded + [base_in_last_100, base_in_last_10, base_in_last_3, quality] + sorted_vec])
-
+        input_tensor = torch.tensor([hot_encoded + poa_state + base_pos_info + sn_info + [ip, pw, quality] + sorted_vec])
         # append to result tensor,
-        if split_txt[8] == split_txt[1][1]:
+        if split_txt[6][3] == split_txt[1][3]:
             label_tensor = torch.tensor([[0.00]])
         else:
             label_tensor = torch.tensor([[1.00]])
         return input_tensor, label_tensor
 
-    def clean_string_get_array(self, string):
-        # to do
-        return
+    def process_sn_info(self, three_base_context, calling_base, sn_vec):
+        if calling_base == "X":
+            calling_base = three_base_context[1]
+        # base sn
+        base_sn = sn_vec[util.get_base_to_int(calling_base)]
+        # left base sn diff
+        left_diff = abs(base_sn - sn_vec[util.get_base_to_int(three_base_context[0])])
+        # right base sn diff
+        right_diff = abs(base_sn - sn_vec[util.get_base_to_int(three_base_context[2])])
+        # sn vec with least diff to highest
+        sn_vec_diff = [abs(base_sn - sn_vec[0]), abs(base_sn - sn_vec[1]), abs(base_sn - sn_vec[2]), abs(base_sn - sn_vec[3])]
+        sn_vec_diff.sort()
+        return [base_sn, left_diff, right_diff] + sn_vec_diff
+
+    def get_state_info(self, status):
+        calling_base = "X"
+        poa_state = [0.0] * 3
+        if status[0] == "O":
+            calling_base = status[3]
+            poa_state[0] = 1.0
+        elif status[0] == "S":
+            calling_base = status[3]
+            poa_state[1] = 1.0
+        else:
+            poa_state[2] = 1.0
+        return calling_base, poa_state
+
+    def read_len_info (self, read_position, read_len):
+        base_pos_info = [0.0] * 3
+        if (read_position >= read_len - 3) or (read_position <= 3):
+            base_pos_info[0] = 1.0
+        if (read_position >= read_len - 10) or (read_position <= 10):
+            base_pos_info[1] = 1.0
+        if (read_position >= read_len - 100) or (read_position <= 100):
+            base_pos_info[2] = 1.0
+        return base_pos_info
+        
+    def clean_string_get_array(self, string_array):
+        char_remov = ["]", "[", ",", "\n"]
+        for char in char_remov:
+            for index_s in range(len(string_array)):
+                temp = string_array[index_s].replace(char, "")
+                string_array[index_s] = temp
+        vec_f = []
+        for parallel in string_array:
+            vec_f.append(float(parallel))
+        return vec_f
     
     def rearrange_sort_parallel_bases(self, parallel_vec, base):
         if base == "A":
@@ -123,6 +145,8 @@ class QualityDataset(torch.utils.data.Dataset):
         elif base == "T":
             selected_base = parallel_vec[3]
             del parallel_vec[3]
+        elif base == "X":
+            return [0.0, 0.0, 0.0, 0.0]
         else:
             selected_base = parallel_vec[0]
             del parallel_vec[0]
