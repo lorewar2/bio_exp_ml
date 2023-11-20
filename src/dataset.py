@@ -8,7 +8,7 @@ class QualityDataset(torch.utils.data.Dataset):
         self.file_loc = file_loc
         self.shuffle_all = shuffle_all
         self.base_context_count = base_context_count
-        self.tensor_length = pow(5, base_context_count) + 17
+        self.tensor_length = pow(5, base_context_count) + 20
         # get len and save it
         with open(file_loc) as f:
             f.seek(0, 2)

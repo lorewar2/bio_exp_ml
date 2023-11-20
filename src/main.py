@@ -25,7 +25,7 @@ def main():
 def train_model():
     tensor_length = pow(5, CONTEXT_COUNT) + EXTRA_COUNT
     # train parameters
-    learningRate = 0.001
+    learningRate = 0.000001
     epochs = 10
     batch_size = 1024
     # data loading
