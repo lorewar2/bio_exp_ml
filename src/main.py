@@ -40,36 +40,9 @@ def train_model():
     # build the model object
     lr_model = model.quality_model_1_layer(CONTEXT_COUNT, EXTRA_COUNT)
 
-    # define custom weights
-    custom_weight = torch.rand(lr_model.linear.weight.shape)
-    #first_layer_size = tensor_length
-    first_layer_size = 1
-    # calling base count
-    for i in range(0, first_layer_size):
-        for j in range(0, tensor_length):
-            custom_weight[i][j] = torch.tensor(0)
-        custom_weight[i][tensor_length - 4] = torch.tensor(+1.0437)
-        # other base count
-        custom_weight[i][tensor_length - 3] = torch.tensor(-0.2337)
-        custom_weight[i][tensor_length - 2] = torch.tensor(-0.9995)
-        custom_weight[i][tensor_length - 1] = torch.tensor(-1.0)
-        # pacbio qual
-        custom_weight[i][tensor_length - 5] = torch.tensor(+1.0)
-    # put the weights in the model
-    lr_model.linear.weight = torch.nn.Parameter(custom_weight)
-
     # optimizer
     optimizer = torch.optim.SGD(lr_model.parameters(), lr = learningRate)
     criterion = torch.nn.MSELoss()
-
-    torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, MODEL_PATH)
-    # # load the previous saved trained model
-    checkpoint = torch.load(MODEL_PATH)
-    lr_model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    epoch = checkpoint['epoch']
-    loss = checkpoint['loss']
-
     num_batches = len(train_loader)
     # train loop
     for epoch in range(epochs):
