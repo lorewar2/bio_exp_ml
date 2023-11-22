@@ -42,7 +42,8 @@ def train_model():
 
     # define custom weights
     custom_weight = torch.rand(lr_model.linear.weight.shape)
-    first_layer_size = tensor_length
+    #first_layer_size = tensor_length
+    first_layer_size = 1
     # calling base count
     for i in range(0, first_layer_size):
         custom_weight[i][tensor_length - 4] = torch.tensor(-1.0437)
