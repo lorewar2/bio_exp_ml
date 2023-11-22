@@ -33,7 +33,7 @@ def train_model():
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
-        num_workers = 1,
+        num_workers = 64,
         shuffle = False,
         drop_last = True
     )
@@ -46,13 +46,13 @@ def train_model():
     first_layer_size = 1
     # calling base count
     for i in range(0, first_layer_size):
-        custom_weight[i][tensor_length - 4] = torch.tensor(-1.0437)
+        custom_weight[i][tensor_length - 4] = torch.tensor(+1.0437)
         # other base count
-        custom_weight[i][tensor_length - 3] = torch.tensor(0.2337)
-        custom_weight[i][tensor_length - 2] = torch.tensor(0.9995)
-        custom_weight[i][tensor_length - 1] = torch.tensor(1.0)
+        custom_weight[i][tensor_length - 3] = torch.tensor(-0.2337)
+        custom_weight[i][tensor_length - 2] = torch.tensor(-0.9995)
+        custom_weight[i][tensor_length - 1] = torch.tensor(-1.0)
         # pacbio qual
-        custom_weight[i][tensor_length - 5] = torch.tensor(-1.0)
+        custom_weight[i][tensor_length - 5] = torch.tensor(+1.0)
     # put the weights in the model
     lr_model.linear.weight = torch.nn.Parameter(custom_weight)
 

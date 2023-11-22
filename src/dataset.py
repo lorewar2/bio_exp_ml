@@ -79,9 +79,9 @@ class QualityDataset(torch.utils.data.Dataset):
         input_tensor = torch.tensor([hot_encoded + poa_state + base_pos_info + sn_info + [ip, pw, quality] + sorted_vec])
         # append to result tensor,
         if split_txt[6][3] == split_txt[1][3]:
-            label_tensor = torch.tensor([[0.00]])
-        else:
             label_tensor = torch.tensor([[1.00]])
+        else:
+            label_tensor = torch.tensor([[0.00]])
         return input_tensor, label_tensor
 
     def process_sn_info(self, three_base_context, calling_base, sn_vec):
