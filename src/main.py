@@ -46,6 +46,8 @@ def train_model():
     first_layer_size = 1
     # calling base count
     for i in range(0, first_layer_size):
+        for j in range(0, tensor_length):
+            custom_weight[i][j] = torch.tensor(0)
         custom_weight[i][tensor_length - 4] = torch.tensor(+1.0437)
         # other base count
         custom_weight[i][tensor_length - 3] = torch.tensor(-0.2337)
