@@ -11,10 +11,12 @@ READ_MUTATION_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mu
 
 def check_line_sizes_in_file(file_loc):
     with open(file_loc) as f:
-        for line in f:
+        for index in range(0, 1000000):
+            f.seek(index * 108)
+            line = f.readline()
             print(line)
-            offset = f.tell()
-            print(offset)
+            if (len(line) > 10):
+                break
     return
 
 def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filter_path, write_path):
