@@ -18,7 +18,8 @@ def main():
     torch.manual_seed(1)
     random.seed(3)
     np.random.seed(2)
-    train_model()
+    util.check_line_sizes_in_file(DATA_PATH)
+    #train_model()
     #view_result()
     return
 
