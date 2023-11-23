@@ -88,8 +88,8 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
             sn3 = split_txt[10].zfill(8)
             sn4 = split_txt[11].zfill(8)
             # check the
-            pw = split_txt[12].zfill(2)
-            ip = split_txt[13].zfill(2)
+            pw = split_txt[12].zfill(3)
+            ip = split_txt[13].zfill(3)
             parallel1 = split_txt[14].zfill(2)
             parallel2 = split_txt[15].zfill(2)
             parallel3 = split_txt[16].zfill(2)

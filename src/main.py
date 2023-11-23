@@ -9,6 +9,7 @@ import math
 import util
 
 DATA_PATH = "/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt"
+RAW_PATH = "/data1/hifi_consensus/processed_data/chr2_ip_pw.txt"
 MODEL_PATH = "./result/model/multi_layered_model.pt"
 CONTEXT_COUNT = 3
 EXTRA_COUNT = 20
@@ -18,7 +19,8 @@ def main():
     torch.manual_seed(1)
     random.seed(3)
     np.random.seed(2)
-    util.check_line_sizes_in_file(DATA_PATH)
+    #util.check_line_sizes_in_file(DATA_PATH)
+    util.filter_data_using_confident_germline_indel_depth("chr2", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
     #train_model()
     #view_result()
     return
@@ -29,13 +31,13 @@ def train_model():
     # train parameters
     learningRate = 0.000001
     epochs = 10
-    batch_size = 1
+    batch_size = 1024
     # data loading
     train_dataset = QualityDataset (DATA_PATH, True, CONTEXT_COUNT)
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
-        num_workers = 1,
+        num_workers = 64,
         shuffle = False,
         drop_last = True
     )
