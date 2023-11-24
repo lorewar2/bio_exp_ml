@@ -35,6 +35,7 @@ class QualityDataset(torch.utils.data.Dataset):
             input_tensor, label_tensor = self.retrieve_item_from_disk(self.index_array[index])
         else:
             input_tensor, label_tensor = self.retrieve_item_from_disk(index)
+        #print(input_tensor)
         return input_tensor, label_tensor
 
     def retrieve_item_from_disk(self, index):
@@ -44,7 +45,7 @@ class QualityDataset(torch.utils.data.Dataset):
             f1.seek(index * 108)
             retrieved_line = f1.readline()
         split_txt = retrieved_line.split(" ")
-        # case of corrupted data $dont use this$ 
+        # case of corrupted data $dont use this$
         if len(split_txt) != 18:
             print("====================ERROR=========================")
             return torch.zeros(1, self.tensor_length), torch.tensor([[0.00]])

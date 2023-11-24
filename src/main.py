@@ -31,9 +31,9 @@ def train_model():
     # train parameters
     learningRate = 0.000001
     epochs = 10
-    batch_size = 1024
+    batch_size = 1024 * 16
     # data loading
-    train_dataset = QualityDataset (DATA_PATH, True, CONTEXT_COUNT)
+    train_dataset = QualityDataset (DATA_PATH, False, CONTEXT_COUNT)
     train_loader = DataLoader (
         dataset = train_dataset,
         batch_size = batch_size,
@@ -50,6 +50,8 @@ def train_model():
     first_layer_size = 1
     # calling base count
     for i in range(0, first_layer_size):
+        for j in range(0, tensor_length):
+            custom_weight[i][j] = torch.tensor(0.0)
         custom_weight[i][tensor_length - 4] = torch.tensor(+1.0437)
         # other base count
         custom_weight[i][tensor_length - 3] = torch.tensor(-0.2337)
@@ -64,7 +66,6 @@ def train_model():
     optimizer = torch.optim.SGD(lr_model.parameters(), lr = learningRate)
     criterion = torch.nn.MSELoss()
 
-    torch.save({'epoch': 0, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': 9999}, MODEL_PATH)
     # # load the previous saved trained model
     checkpoint = torch.load(MODEL_PATH)
     lr_model.load_state_dict(checkpoint['model_state_dict'])
@@ -86,11 +87,14 @@ def train_model():
             loss.backward()
             # update parameters
             optimizer.step()
-            print('epoch {}, loss {}, batch {}/{}'.format(epoch, loss.item(), batch_idx, num_batches))
+            less = False
+            if loss.item() < 0.0001:
+                less = True
+            print('epoch {}, loss {}, batch {}/{} {}'.format(epoch, str(loss.item()).zfill(22), batch_idx, num_batches, less))
         # save the trained model after each epoch
         torch.save({'epoch': epoch, 'model_state_dict': lr_model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss}, MODEL_PATH)
         # reshuffle the data for the next epoch
-        train_dataset.reshuffle()
+        # train_dataset.reshuffle()
 
 # this function will evalute the model and aggregate the results (output of the model for wrong and right)
 def evaluate_model():
