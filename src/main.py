@@ -21,7 +21,8 @@ def main():
     np.random.seed(2)
     #util.check_line_sizes_in_file(DATA_PATH)
     #util.filter_data_using_confident_germline_indel_depth("chr2", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
-    train_model()
+    evaluate_model()
+    #train_model()
     #view_result()
     return
 
@@ -108,7 +109,7 @@ def evaluate_model():
     eval_loader = DataLoader (
         dataset = eval_dataset,
         batch_size = batch_size,
-        num_workers = 4,
+        num_workers = 64,
         shuffle = False,
         drop_last = True
     )
@@ -126,7 +127,7 @@ def evaluate_model():
                 pacbio_qual = batch_inputs[i][0][tensor_length - 5].item()
                 position = int(-10 * math.log(pred[i].item(), 10))
                 all_counts[position] += 1
-                if batch_labels[i].item() > 0.9 and pacbio_qual > 0.001:
+                if batch_labels[i].item() < 0.5 and pacbio_qual > 0.001:
                     error_counts[position] += 1
             print("Evaluating {}/{}".format(batch_idx, eval_len))
     print(all_counts)
