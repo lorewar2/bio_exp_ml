@@ -101,8 +101,8 @@ def train_model():
 def evaluate_model():
     tensor_length = pow(5, CONTEXT_COUNT) + EXTRA_COUNT
     # arrays to save the result
-    error_counts = [0] * 93
-    all_counts = [0] * 93
+    error_counts = [0] * 94
+    all_counts = [0] * 94
     batch_size = 1024
     # get the data to test
     eval_dataset = QualityDataset (DATA_PATH, False, CONTEXT_COUNT)
@@ -125,7 +125,9 @@ def evaluate_model():
             pred = lr_model(batch_inputs)
             for i in range(len(batch_inputs)):
                 pacbio_qual = batch_inputs[i][0][tensor_length - 5].item()
-                position = int(-10 * math.log((1.0 - pred[i].item()), 10))
+                position = int(-10 * math.log((1.0 - pred[i].item()) + 0.000000000001, 10))
+                if position > 92:
+                    position = 93
                 all_counts[position] += 1
                 if batch_labels[i].item() < 0.5 and pacbio_qual > 0.001:
                     error_counts[position] += 1
