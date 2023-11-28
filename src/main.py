@@ -125,7 +125,7 @@ def evaluate_model():
             pred = lr_model(batch_inputs)
             for i in range(len(batch_inputs)):
                 pacbio_qual = batch_inputs[i][0][tensor_length - 5].item()
-                position = int(-10 * math.log(pred[i].item(), 10))
+                position = int(-10 * math.log((1.0 - pred[i].item()), 10))
                 all_counts[position] += 1
                 if batch_labels[i].item() < 0.5 and pacbio_qual > 0.001:
                     error_counts[position] += 1
