@@ -10,7 +10,7 @@ import util
 
 DATA_PATH = "/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt"
 RAW_PATH = "/data1/hifi_consensus/processed_data/chr2_ip_pw.txt"
-MODEL_PATH = "./result/model/multi_layered_model.pt"
+MODEL_PATH = "./result/model/multi_layered_model_new.pt"
 CONTEXT_COUNT = 3
 EXTRA_COUNT = 20
 
@@ -21,8 +21,8 @@ def main():
     np.random.seed(2)
     #util.check_line_sizes_in_file(DATA_PATH)
     #util.filter_data_using_confident_germline_indel_depth("chr2", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
-    evaluate_model()
-    #train_model()
+    #evaluate_model()
+    train_model()
     #view_result()
     return
 
@@ -48,7 +48,7 @@ def train_model():
     # define custom weights
     custom_weight = torch.rand(lr_model.linear.weight.shape)
     #first_layer_size = tensor_length
-    first_layer_size = 1
+    first_layer_size = int(tensor_length / 2)
     # calling base count
     for i in range(0, first_layer_size):
         for j in range(0, tensor_length):
