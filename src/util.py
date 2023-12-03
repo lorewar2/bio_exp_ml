@@ -24,13 +24,13 @@ def output_the_base_corrections (data_path):
             if len(split_txt) != 18:
                 continue
             else:
-                total_fix += 1
                 base_context = [split_txt[6][2], split_txt[6][3], split_txt[6][4]]
                 # get the converted number
                 converted_number = convert_bases_to_bits(base_context, 3)
                 if split_txt[6][3] == split_txt[1][3]:
                     total[converted_number] += 1
                 else:
+                    total_fix += 1
                     calling_base, poa_state = get_state_info(split_txt[7])
                     # poa fix
                     if calling_base == split_txt[1][3]:
