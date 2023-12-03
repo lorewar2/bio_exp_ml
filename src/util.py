@@ -9,6 +9,70 @@ ERROR_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5
 WRITE_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5base_final.txt"
 READ_MUTATION_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_final.txt"
 
+def output_the_base_corrections (data_path):
+    index = 0
+    total_fix = 0
+    poa_fix = 0
+    parallel_fix = 0
+    base_correction_all_poa_parallel = [0, 0, 0] * 125
+    with open(data_path) as f1:
+        for line in f1:
+            index += 1
+            split_txt = line.split(" ")
+            if len(split_txt) != 18:
+                continue
+            else:
+                total_fix += 1
+                base_context = [split_txt[6][2], split_txt[6][3], split_txt[6][4]]
+                # get the converted number
+                converted_number = convert_bases_to_bits(base_context, 3)
+                if split_txt[6][3] == split_txt[1][3]:
+                    base_correction_all_poa_parallel[converted_number][0] += 1
+                else:
+                    calling_base, poa_state = get_state_info(split_txt[7])
+                    # poa fix
+                    if calling_base == split_txt[1][3]:
+                        poa_fix += 1
+                        base_correction_all_poa_parallel[converted_number][0] += 1
+                        base_correction_all_poa_parallel[converted_number][1] += 1
+                        base_correction_all_poa_parallel[converted_number][2] += 1
+                    # parallel fix
+                    else:
+                        parallel_vec_f = clean_string_get_array([split_txt[14], split_txt[15], split_txt[16], split_txt[17]])
+                        sorted_vec = rearrange_sort_parallel_bases(parallel_vec_f, calling_base)
+                        if sorted_vec[1] > sorted_vec[0]:
+                            parallel_fix += 1
+                            base_correction_all_poa_parallel[converted_number][0] += 1
+                            base_correction_all_poa_parallel[converted_number][2] += 1
+            if index % 10000 == 0:
+                print("lines {} total: {} poa: {} parallel: {}".format(index, total_fix, poa_fix, parallel_fix))
+    print(base_correction_all_poa_parallel)
+    return
+
+def clean_string_get_array(string_array):
+    char_remov = ["]", "[", ",", "\n"]
+    for char in char_remov:
+        for index_s in range(len(string_array)):
+            temp = string_array[index_s].replace(char, "")
+            string_array[index_s] = temp
+    vec_f = []
+    for parallel in string_array:
+        vec_f.append(float(parallel))
+    return vec_f
+
+def get_state_info(status):
+        calling_base = "X"
+        poa_state = [0.0] * 3
+        if status[0] == "O":
+            calling_base = status[3]
+            poa_state[0] = 1.0
+        elif status[0] == "S":
+            calling_base = status[3]
+            poa_state[1] = 1.0
+        else:
+            poa_state[2] = 1.0
+        return calling_base, poa_state
+
 def check_line_sizes_in_file(file_loc):
     with open(file_loc) as f:
         for index in range(0, 1000000):
