@@ -14,7 +14,9 @@ def output_the_base_corrections (data_path):
     total_fix = 0
     poa_fix = 0
     parallel_fix = 0
-    base_correction_all_poa_parallel = [0, 0, 0] * 125
+    total = [0] * 125
+    poa = [0] * 125
+    parallel = [0] * 125
     with open(data_path) as f1:
         for line in f1:
             index += 1
@@ -27,26 +29,28 @@ def output_the_base_corrections (data_path):
                 # get the converted number
                 converted_number = convert_bases_to_bits(base_context, 3)
                 if split_txt[6][3] == split_txt[1][3]:
-                    base_correction_all_poa_parallel[converted_number][0] += 1
+                    total[converted_number] += 1
                 else:
                     calling_base, poa_state = get_state_info(split_txt[7])
                     # poa fix
                     if calling_base == split_txt[1][3]:
                         poa_fix += 1
-                        base_correction_all_poa_parallel[converted_number][0] += 1
-                        base_correction_all_poa_parallel[converted_number][1] += 1
-                        base_correction_all_poa_parallel[converted_number][2] += 1
+                        total[converted_number] += 1
+                        poa[converted_number] += 1
+                        parallel[converted_number] += 1
                     # parallel fix
                     else:
                         parallel_vec_f = clean_string_get_array([split_txt[14], split_txt[15], split_txt[16], split_txt[17]])
                         sorted_vec = rearrange_sort_parallel_bases(parallel_vec_f, calling_base)
                         if sorted_vec[1] > sorted_vec[0]:
                             parallel_fix += 1
-                            base_correction_all_poa_parallel[converted_number][0] += 1
-                            base_correction_all_poa_parallel[converted_number][2] += 1
+                            total[converted_number] += 1
+                            parallel[converted_number] += 1
             if index % 10000 == 0:
                 print("lines {} total: {} poa: {} parallel: {}".format(index, total_fix, poa_fix, parallel_fix))
-    print(base_correction_all_poa_parallel)
+    print(total)
+    print(poa)
+    print(parallel)
     return
 
 def clean_string_get_array(string_array):
