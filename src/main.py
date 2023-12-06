@@ -22,7 +22,7 @@ def main():
     #util.check_line_sizes_in_file(DATA_PATH)
     #util.filter_data_using_confident_germline_indel_depth("chr2", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
     #evaluate_model()
-    util.output_the_base_corrections(DATA_PATH)
+    util.output_the_base_corrections(DATA_PATH, "results")
     #util.filter_data_using_confident_germline_indel_depth("chr1", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
     #train_model()
     #view_result()

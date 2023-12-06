@@ -9,10 +9,10 @@ ERROR_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5
 WRITE_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_5base_final.txt"
 READ_MUTATION_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mutation_3base_final.txt"
 
-def output_the_base_corrections (data_path):
-    ttoa = [[0 for i in range(5)] for j in range(125)] # total error poa del parallel
-    ttoc = [[0 for i in range(5)] for j in range(125)]
-    ttog = [[0 for i in range(5)] for j in range(125)]
+def output_the_base_corrections (data_path, write_folder):
+    ttoa = [[0 for i in range(125)] for j in range(5)] # total error poa del parallel
+    ttoc = [[0 for i in range(125)] for j in range(5)]
+    ttog = [[0 for i in range(125)] for j in range(5)]
     index = 0
     with open(data_path) as f1:
         for line in f1:
@@ -63,9 +63,15 @@ def output_the_base_corrections (data_path):
                 if index > 0:
                     break
                 print("lines {}".format(index))
-    print(ttoa)
-    print(ttoc)
-    print(ttog)
+    with open("{}/ttoa.txt".format(write_folder), 'a') as fw:
+        for colomn in ttoa:
+           fw.write("{},{},{},{},{}\n".format(colomn[0], colomn[1], colomn[2], colomn[3], colomn[4])) 
+    with open("{}/ttoc.txt".format(write_folder), 'a') as fw:
+        for colomn in ttoc:
+           fw.write("{},{},{},{},{}\n".format(colomn[0], colomn[1], colomn[2], colomn[3], colomn[4])) 
+    with open("{}/ttog.txt".format(write_folder), 'a') as fw:
+        for colomn in ttog:
+           fw.write("{},{},{},{},{}\n".format(colomn[0], colomn[1], colomn[2], colomn[3], colomn[4])) 
     return
 
 def clean_string_get_array(string_array):
