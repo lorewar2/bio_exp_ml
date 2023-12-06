@@ -11,6 +11,9 @@ READ_MUTATION_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mu
 
 def output_the_base_corrections (data_path, write_folder):
     ttoa = [[0 for i in range(16)] for j in range(5)] # total error poa del parallel
+    ttoc = [[0 for i in range(16)] for j in range(5)] # total error poa del parallel
+    ttog = [[0 for i in range(16)] for j in range(5)] # total error poa del parallel
+
     index = 0
     with open(data_path) as f1:
         for line in f1:
@@ -21,54 +24,53 @@ def output_the_base_corrections (data_path, write_folder):
             else:
                 # get the converted number
                 base_correction_context = [split_txt[1][2], split_txt[1][4]]
-                print(base_correction_context)
                 converted_number = convert_bases_to_2bit(base_correction_context)
-                print(converted_number)
-                converted_back = convert_2bit_to_bases(converted_number)
-                print(converted_back)
-                print(" ")
-                # if split_txt[1][3] == "T":
-                #     ttoa[0][converted_number] += 1
-                #     ttoc[0][converted_number] += 1
-                #     ttog[0][converted_number] += 1
-                #     calling_base, poa_state = get_state_info(split_txt[7])
-                #     if split_txt[6][3] == "A":
-                #         ttoa[1][converted_number] += 1
-                #         if calling_base == split_txt[1][3]:
-                #             ttoa[2][converted_number] += 1
-                #         elif poa_state[2] > 0.5:
-                #             ttoa[3][converted_number] += 1
-                #         else:
-                #             parallel_vec_f = clean_string_get_array([split_txt[14], split_txt[15], split_txt[16], split_txt[17]])
-                #             if (parallel_vec_f [3] >= parallel_vec_f[0]):
-                #                 ttoa[4][converted_number] += 1
-                #     elif split_txt[6][3] == "C":
-                #         ttoc[1][converted_number] += 1
-                #         if calling_base == split_txt[1][3]:
-                #             ttoc[2][converted_number] += 1
-                #         elif poa_state[2] > 0.5:
-                #             ttoc[3][converted_number] += 1
-                #         else:
-                #             parallel_vec_f = clean_string_get_array([split_txt[14], split_txt[15], split_txt[16], split_txt[17]])
-                #             if (parallel_vec_f [3] >= parallel_vec_f[1]):
-                #                 ttoc[4][converted_number] += 1
-                #     elif split_txt[6][3] == "G":
-                #         ttog[1][converted_number] += 1
-                #         if calling_base == split_txt[1][3]:
-                #             ttog[2][converted_number] += 1
-                #         elif poa_state[2] > 0.5:
-                #             ttog[3][converted_number] += 1
-                #         else:
-                #             parallel_vec_f = clean_string_get_array([split_txt[14], split_txt[15], split_txt[16], split_txt[17]])
-                #             if (parallel_vec_f [3] >= parallel_vec_f[2]):
-                #                 ttog[4][converted_number] += 1
+                calling_base, poa_state = get_state_info(split_txt[7])
+                if split_txt[1][3] == "T":
+                    ttoa[0][converted_number] += 1
+                    if split_txt[6][3] == "A":
+                        ttoa[1][converted_number] += 1
+                        if calling_base == split_txt[1][3]:
+                            ttoa[2][converted_number] += 1
+                        elif poa_state[2] > 0.5:
+                            ttoa[3][converted_number] += 1
+                        else:
+                            parallel_vec_f = clean_string_get_array([split_txt[14], split_txt[15], split_txt[16], split_txt[17]])
+                            if (parallel_vec_f [3] >= parallel_vec_f[0]):
+                                ttoa[4][converted_number] += 1
+                    elif split_txt[6][3] == "C":
+                        ttoc[1][converted_number] += 1
+                        if calling_base == split_txt[1][3]:
+                            ttoc[2][converted_number] += 1
+                        elif poa_state[2] > 0.5:
+                            ttoc[3][converted_number] += 1
+                        else:
+                            parallel_vec_f = clean_string_get_array([split_txt[14], split_txt[15], split_txt[16], split_txt[17]])
+                            if (parallel_vec_f [3] >= parallel_vec_f[1]):
+                                ttoc[4][converted_number] += 1
+                    elif split_txt[6][3] == "G":
+                        ttog[1][converted_number] += 1
+                        if calling_base == split_txt[1][3]:
+                            ttog[2][converted_number] += 1
+                        elif poa_state[2] > 0.5:
+                            ttog[3][converted_number] += 1
+                        else:
+                            parallel_vec_f = clean_string_get_array([split_txt[14], split_txt[15], split_txt[16], split_txt[17]])
+                            if (parallel_vec_f [3] >= parallel_vec_f[2]):
+                                ttog[4][converted_number] += 1
             if index % 10000 == 0:
                 if index > 0:
                     break
                 print("lines {}".format(index))
-    # with open("{}/ttoa.txt".format(write_folder), 'a+') as fw:
-    #     for i in range(16):
-    #        fw.write("{},{},{},{},{}\n".format(ttoa[0][i], ttoa[1][i], ttoa[2][i], ttoa[3][i], ttoa[4][i])) 
+    with open("{}/ttoa.txt".format(write_folder), 'a+') as fw:
+        for i in range(16):
+           fw.write("{},{},{},{},{}\n".format(ttoa[0][i], ttoa[1][i], ttoa[2][i], ttoa[3][i], ttoa[4][i]))
+    with open("{}/ttoc.txt".format(write_folder), 'a+') as fw:
+        for i in range(16):
+           fw.write("{},{},{},{},{}\n".format(ttoc[0][i], ttoc[1][i], ttoc[2][i], ttoc[3][i], ttoc[4][i]))
+    with open("{}/ttog.txt".format(write_folder), 'a+') as fw:
+        for i in range(16):
+           fw.write("{},{},{},{},{}\n".format(ttog[0][i], ttog[1][i], ttog[2][i], ttog[3][i], ttog[4][i]))
     return
 
 def convert_bases_to_2bit(base_array):
