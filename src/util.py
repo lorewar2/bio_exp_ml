@@ -12,10 +12,12 @@ READ_MUTATION_PATH = "/data1/hifi_consensus/processed_data/mutation_data/chr2_mu
 def output_the_base_corrections (data_path):
     index = 0
     total_fix = 0
+    error_fix = 0
     poa_fix = 0
     parallel_fix = 0
     del_fix = 0
     total = [0] * 125
+    errors = [0] * 125
     poa = [0] * 125
     del1 = [0] * 125
     parallel = [0] * 125
@@ -29,9 +31,11 @@ def output_the_base_corrections (data_path):
                 base_context = [split_txt[6][2], split_txt[6][3], split_txt[6][4]]
                 # get the converted number
                 converted_number = convert_bases_to_bits(base_context, 3)
+                total[converted_number] += 1
+                total_fix += 1
                 if split_txt[6][3] != split_txt[1][3]:
-                    total_fix += 1
-                    total[converted_number] += 1
+                    error_fix += 1
+                    errors[converted_number] += 1
                     calling_base, poa_state = get_state_info(split_txt[7])
                     # poa fix
                     if calling_base == split_txt[1][3]:
@@ -46,12 +50,13 @@ def output_the_base_corrections (data_path):
                     else:
                         parallel_vec_f = clean_string_get_array([split_txt[14], split_txt[15], split_txt[16], split_txt[17]])
                         sorted_vec = rearrange_sort_parallel_bases(parallel_vec_f, calling_base)
-                        if (sorted_vec[1] > sorted_vec[0]) or (poa_state[2] > 0.5):
+                        if (sorted_vec[1] > sorted_vec[0]):
                             parallel_fix += 1
                             parallel[converted_number] += 1
             if index % 10000 == 0:
-                print("lines {} total: {} poa: {} del: {} parallel: {}".format(index, total_fix, poa_fix, del_fix, parallel_fix))
+                print("lines {} total: {} error: {} poa: {} del: {} parallel: {}".format(index, total_fix, error_fix, poa_fix, del_fix, parallel_fix))
     print(total)
+    print(errors)
     print(poa)
     print(del1)
     print(parallel)

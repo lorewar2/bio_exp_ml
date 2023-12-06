@@ -8,7 +8,7 @@ import random
 import math
 import util
 
-DATA_PATH = "/data1/hifi_consensus/processed_data/chr1_ip_pw_filtered.txt"
+DATA_PATH = "/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt"
 RAW_PATH = "/data1/hifi_consensus/processed_data/chr1_ip_pw.txt"
 MODEL_PATH = "./result/model/multi_layered_model.pt"
 CONTEXT_COUNT = 3
