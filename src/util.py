@@ -63,15 +63,15 @@ def output_the_base_corrections (data_path, write_folder):
                 if index > 0:
                     break
                 print("lines {}".format(index))
-    with open("{}/ttoa.txt".format(write_folder), 'a') as fw:
-        for colomn in ttoa:
-           fw.write("{},{},{},{},{}\n".format(colomn[0], colomn[1], colomn[2], colomn[3], colomn[4])) 
-    with open("{}/ttoc.txt".format(write_folder), 'a') as fw:
-        for colomn in ttoc:
-           fw.write("{},{},{},{},{}\n".format(colomn[0], colomn[1], colomn[2], colomn[3], colomn[4])) 
-    with open("{}/ttog.txt".format(write_folder), 'a') as fw:
-        for colomn in ttog:
-           fw.write("{},{},{},{},{}\n".format(colomn[0], colomn[1], colomn[2], colomn[3], colomn[4])) 
+    with open("{}/ttoa.txt".format(write_folder), 'a+') as fw:
+        for i in range(125):
+           fw.write("{},{},{},{},{}\n".format(ttoa[0][i], ttoa[1][i], ttoa[2][i], ttoa[3][i], ttoa[4][i])) 
+    with open("{}/ttoc.txt".format(write_folder), 'a+') as fw:
+        for i in range(125):
+           fw.write("{},{},{},{},{}\n".format(ttoc[0][i], ttoc[1][i], ttoc[2][i], ttoc[3][i], ttoc[4][i])) 
+    with open("{}/ttog.txt".format(write_folder), 'a+') as fw:
+        for i in range(125):
+           fw.write("{},{},{},{},{}\n".format(ttog[0][i], ttog[1][i], ttog[2][i], ttog[3][i], ttog[4][i])) 
     return
 
 def clean_string_get_array(string_array):
