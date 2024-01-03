@@ -8,8 +8,8 @@ import random
 import math
 import util
 
-DATA_PATH = "/data1/hifi_consensus/processed_data/chr2_ip_pw_filtered.txt"
-RAW_PATH = "/data1/hifi_consensus/processed_data/chr1_ip_pw.txt"
+DATA_PATH = "/data1/hifi_consensus/processed_data/chr20_ip_pw_filtered.txt"
+RAW_PATH = "/data1/hifi_consensus/processed_data/chr20_ip_pw.txt"
 MODEL_PATH = "./result/model/multi_layered_model.pt"
 CONTEXT_COUNT = 3
 EXTRA_COUNT = 20
@@ -20,9 +20,9 @@ def main():
     random.seed(3)
     np.random.seed(2)
     #util.check_line_sizes_in_file(DATA_PATH)
-    #util.filter_data_using_confident_germline_indel_depth("chr2", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
+    util.filter_data_using_confident_germline_indel_depth("chr20", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
     #evaluate_model()
-    util.output_the_base_corrections(DATA_PATH, "result")
+    #util.output_the_base_corrections(DATA_PATH, "result")
     #util.filter_data_using_confident_germline_indel_depth("chr1", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
     #train_model()
     #view_result()
