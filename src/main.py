@@ -23,7 +23,8 @@ def main():
     #util.filter_data_using_confident_germline_indel_depth("chr20", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
     #evaluate_model()
     #util.output_the_base_corrections(DATA_PATH, "result")
-    util.filter_data_using_confident_germline_indel_depth("chr18", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
+    #util.filter_data_using_confident_germline_indel_depth("chr18", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
+    util.clean_the_data (RAW_PATH, "/data1/hifi_consensus/processed_data/chr18_ip_pw_cleaned.txt")
     #train_model()
     #view_result()
     return
