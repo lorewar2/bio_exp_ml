@@ -188,6 +188,7 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
             while current_location > confident_regions[confident_index][1]:
                 if confident_index + 1 >= len(confident_regions):
                     break
+                print("skipped {} <=  current location {}", confident_regions[confident_index][1], current_location)
                 confident_index += 1
             # iterate to correct area of germline region
             while current_location > germline_locations[germline_index][0]:
@@ -196,7 +197,7 @@ def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filt
                 germline_index += 1
             # check if in confident region if not continue
             if (current_location < confident_regions[confident_index][0]) or (current_location > confident_regions[confident_index][1]):
-                #print("Not confident region {} start: {} end: {} ".format(current_location, confident_regions[confident_index][0], confident_regions[confident_index][1]))
+                print("Not confident region {} start: {} end: {}  prev_start {} prev_end {}".format(current_location, confident_regions[confident_index][0], confident_regions[confident_index][1], confident_regions[confident_index- 1][0], confident_regions[confident_index- 1][1]))
                 continue
             # check if germline variant
             if (current_location >= germline_locations[germline_index][0]) and (current_location <= (germline_locations[germline_index][0] + germline_locations[germline_index][1])):
