@@ -886,11 +886,11 @@ def print_pacbio_scores(read_path):
     file = open(read_path, "r")
     for index, line in enumerate(file):
         split_txt = line.split(" ")
-        if len(split_txt) != 9:
+        if len(split_txt) != 18:
             continue
         base_quality = int(split_txt[2])
-        ref_base = split_txt[1][1]
-        call_base = split_txt[3]
+        ref_base = split_txt[1][3]
+        call_base = split_txt[6][3]
         all_counts[base_quality] += 1
         if ref_base != call_base:
             error_counts[base_quality] += 1
