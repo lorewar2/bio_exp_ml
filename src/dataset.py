@@ -32,11 +32,11 @@ class QualityDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         if self.shuffle_all == True:
-            input_tensor, label_tensor = self.retrieve_item_from_disk(self.index_array[index])
+            input_tensor, label_tensor, polished = self.retrieve_item_from_disk(self.index_array[index])
         else:
-            input_tensor, label_tensor = self.retrieve_item_from_disk(index)
+            input_tensor, label_tensor, polished = self.retrieve_item_from_disk(index)
         #print(input_tensor)
-        return input_tensor, label_tensor
+        return input_tensor, label_tensor, polished
 
     def retrieve_item_from_disk(self, index):
         # search the index file to file the location # index offset is 108
@@ -80,11 +80,25 @@ class QualityDataset(torch.utils.data.Dataset):
         # make and append to the input tensor,
         input_tensor = torch.tensor([hot_encoded + poa_state + base_pos_info + sn_info + [ip, pw, quality] + sorted_vec])
         # append to result tensor,
+        polished = 0 #change
         if split_txt[6][3] == split_txt[1][3]:
             label_tensor = torch.tensor([[1.00]])
+            if calling_base != split_txt[1][3]:
+                polished = 1  # messed by poa
+            elif calling_base == "X":
+                polished = 2 # messed by del
+            elif sorted_vec[1] > sorted_vec[0]:
+                polished = 3 # messed by parallel
         else:
             label_tensor = torch.tensor([[0.00]])
-        return input_tensor, label_tensor
+            if calling_base == split_txt[1][3]:
+                polished = 1  # fixed by sub
+            elif calling_base == "X":
+                polished = 2 # fixed by del
+            elif sorted_vec[1] >= sorted_vec[0]:
+                polished = 3 # fixed by parallel
+            
+        return input_tensor, label_tensor, polished
 
     def process_sn_info(self, three_base_context, calling_base, sn_vec):
         if calling_base == "X":

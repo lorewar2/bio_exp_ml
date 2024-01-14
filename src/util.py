@@ -1,6 +1,7 @@
 
 import torch
 import random
+import model
 import numpy as np
 import scipy.special
 

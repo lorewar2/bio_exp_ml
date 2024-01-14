@@ -25,9 +25,10 @@ def main():
     #util.output_the_base_corrections(DATA_PATH, "result")
     #util.filter_data_using_confident_germline_indel_depth("chr18", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
     #util.clean_the_data (RAW_PATH, "/data1/hifi_consensus/processed_data/chr18_ip_pw_cleaned.txt")
-    util.print_pacbio_scores(DATA_PATH)
+    #util.print_pacbio_scores(DATA_PATH)
     #train_model()
     #view_result()
+    evaluate_model()
     return
 
 # this function will train the model using the train data
@@ -107,6 +108,8 @@ def evaluate_model():
     # arrays to save the result
     error_counts = [0] * 94
     all_counts = [0] * 94
+    fixed_polished_counts = [0] * 4
+    messed_polished_counts = [0] * 4
     batch_size = 1024
     # get the data to test
     eval_dataset = QualityDataset (DATA_PATH, False, CONTEXT_COUNT)
@@ -125,7 +128,7 @@ def evaluate_model():
     # run the data
     with torch.no_grad():
         lr_model.eval()
-        for batch_idx, (batch_inputs, batch_labels) in enumerate(eval_loader):
+        for batch_idx, (batch_inputs, batch_labels, batch_polished) in enumerate(eval_loader):
             pred = lr_model(batch_inputs)
             for i in range(len(batch_inputs)):
                 pacbio_qual = batch_inputs[i][0][tensor_length - 5].item()
@@ -134,10 +137,18 @@ def evaluate_model():
                     position = 93
                 all_counts[position] += 1
                 if batch_labels[i].item() < 0.5 and pacbio_qual > 0.001:
-                    error_counts[position] += 1
+                    if batch_polished[i] == 0:
+                        error_counts[position] += 1
+                    else:
+                        fixed_polished_counts[batch_polished[i]] += 1
+                elif batch_labels[i].item() > 0.5:
+                    messed_polished_counts[batch_polished[i]] += 1
+            break
             print("Evaluating {}/{}".format(batch_idx, eval_len))
     print(all_counts)
     print(error_counts)
+    print(fixed_polished_counts)
+    print(messed_polished_counts)
     lr_model.train()
 
 def view_result():
