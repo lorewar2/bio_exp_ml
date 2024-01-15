@@ -20,6 +20,9 @@ def clean_the_data (data_path, write_path):
                 print("ERROR")
                 print(line)
                 continue
+            offset = read_file.tell()
+            print(offset)
+            #modified_lines.append(line)
             print("location = ".format(split_txt[0]))
             if index % 1_000_000 == 0:
                 for write_line in modified_lines:
