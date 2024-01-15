@@ -20,8 +20,6 @@ def clean_the_data (data_path, write_path):
                 print("ERROR")
                 print(line)
                 continue
-            offset = read_file.tell()
-            print(offset)
             #modified_lines.append(line)
             print("location = ".format(split_txt[0]))
             if index % 1_000_000 == 0:
@@ -255,7 +253,7 @@ def check_line_sizes_in_file(file_loc):
             f.seek(index * 108)
             line = f.readline()
             print(line)
-            if (len(line) > 10):
+            if (len(line) > 18):
                 break
     return
 
