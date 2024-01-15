@@ -24,7 +24,7 @@ def main():
     #evaluate_model()
     #util.output_the_base_corrections(DATA_PATH, "result")
     #util.filter_data_using_confident_germline_indel_depth("chr18", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
-    util.check_line_sizes_in_file ("/data1/hifi_consensus/processed_data/chr18_ip_pw_cleaned.txt")
+    util.clean_the_data (DATA_PATH, "/data1/hifi_consensus/processed_data/chr18_ip_pw_cleaned.txt")
     #util.print_pacbio_scores(DATA_PATH)
     #train_model()
     #view_result()

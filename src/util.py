@@ -17,16 +17,19 @@ def clean_the_data (data_path, write_path):
         for index, line in enumerate(read_file):
             split_txt = line.split(" ")
             if len(split_txt) != 18:
-                print("ERROR")
+                print("ERROR INVALID ARRAY")
                 print(line)
                 continue
-            #modified_lines.append(line)
-            print("location = ".format(split_txt[0]))
-            if index % 1_000_000 == 0:
+            if len(line) != 108:
+                print("ERROR LINE LEN")
+                print(line)
+                continue
+            modified_lines.append(line)
+            if index % 10_000_000 == 0:
                 for write_line in modified_lines:
                     fw.write(write_line)
                 modified_lines.clear()
-                print("WRITTEN")
+                print("{} WRITTEN".format(index))
     return
 
 def filter_data_using_confident_germline_indel_depth(chromosone, data_path, filter_path, write_path):
