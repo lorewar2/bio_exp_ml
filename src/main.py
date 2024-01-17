@@ -8,7 +8,7 @@ import random
 import math
 import util
 
-DATA_PATH = "/data1/hifi_consensus/processed_data/chr18_ip_pw_filtered.txt"
+DATA_PATH = "/data1/hifi_consensus/chr18_deep_filtered.txt"
 RAW_PATH = "/data1/hifi_consensus/processed_data/chr2_ip_pw.txt"
 MODEL_PATH = "./result/model/multi_layered_model_new.pt"
 CONTEXT_COUNT = 3
@@ -24,11 +24,12 @@ def main():
     #evaluate_model()
     #util.output_the_base_corrections(DATA_PATH, "result")
     #util.filter_data_using_confident_germline_indel_depth("chr18", RAW_PATH, "/data1/hifi_consensus/processed_data/filters", DATA_PATH)
-    util.clean_the_data (DATA_PATH, "/data1/hifi_consensus/processed_data/chr18_ip_pw_cleaned.txt")
+    #util.clean_the_data (DATA_PATH, "/data1/hifi_consensus/processed_data/chr18_ip_pw_cleaned.txt")
     #util.print_pacbio_scores(DATA_PATH)
     #train_model()
     #view_result()
     #evaluate_model()
+    util.print_deep_scores(DATA_PATH)
     return
 
 # this function will train the model using the train data
