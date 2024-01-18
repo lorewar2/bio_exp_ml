@@ -365,7 +365,7 @@ def filter_data_deep_consensus(chromosone, data_path, filter_path, write_path):
     with open(write_path, 'a') as fw:
         for index, line in enumerate(read_file):
             split_txt = line.split(" ")
-            if len(split_txt) != 18:
+            if len(split_txt) != 5:
                 continue
             current_location = int(split_txt[0])
             # iterate to correct area of confident region
