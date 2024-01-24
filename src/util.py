@@ -318,7 +318,7 @@ def print_deep_scores(read_path):
     file = open(read_path, "r")
     for index, line in enumerate(file):
         split_txt = line.split(" ")
-        if len(split_txt) != 5:
+        if len(split_txt) != 7:
             continue
         base_quality = int(split_txt[2])
         ref_base = split_txt[1]
@@ -328,7 +328,6 @@ def print_deep_scores(read_path):
             error_counts[base_quality] += 1
         if index % 100000 == 0:
             print("Running line {}".format(index))
-            break
     print(error_counts)
     print(all_counts)
     print(read_path)

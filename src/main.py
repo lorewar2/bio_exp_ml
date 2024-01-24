@@ -8,8 +8,8 @@ import random
 import math
 import util
 
-DATA_PATH = "/data1/hifi_consensus/chr2_deep_filtered.txt"
-RAW_PATH = "/data1/hifi_consensus/chr2_deep.txt"
+DATA_PATH = "/data1/hifi_consensus/processed_data/chr2_deep_filtered.txt"
+RAW_PATH = "/data1/hifi_consensus/processed_data/chr2_deep.txt"
 FILTER_PATH =  "/data1/hifi_consensus/processed_data/filters"
 MODEL_PATH = "./result/model/multi_layered_model_new.pt"
 CONTEXT_COUNT = 3
@@ -30,8 +30,8 @@ def main():
     #train_model()
     #view_result()
     #evaluate_model()
-    util.filter_data_deep_consensus("chr2", RAW_PATH, FILTER_PATH, DATA_PATH)
-    #util.print_deep_scores(DATA_PATH)
+    #util.filter_data_deep_consensus("chr2", RAW_PATH, FILTER_PATH, DATA_PATH)
+    util.print_deep_scores(DATA_PATH)
     return
 
 # this function will train the model using the train data
